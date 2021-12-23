@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'firebase_options.dart';
+import 'herde_icons.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,43 +46,34 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
+  Map<String, IconData> icons = {
+    'Cowboy': MdiIcons.accountCowboyHat,
+    'Cow': HerdeIcons.cow,
+    'Goat': HerdeIcons.goat,
+    'Cat': HerdeIcons.cat
+  };
+  late List<String> items = icons.keys.toList();
 
   @override
   Widget build(BuildContext context) {
+    print(items);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Herde'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have this many cows',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: ListView(
+        children: items.map((name) => ListTile(leading: Icon(icons[name]), title: Text(name))).toList(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+        onPressed: () {
+          Random rand = Random();
+          String name = icons.keys.toList()[rand.nextInt(icons.length)];
+          setState(() {
+            items.add(name);
+          });
+        },
+        tooltip: 'Add Animal',
+        child: const Icon(MdiIcons.plus),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
