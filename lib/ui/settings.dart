@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
@@ -61,11 +60,7 @@ class _SettingsState extends State<Settings> {
                 child: Text('Name:'),
               ),
               Expanded(
-                child: TextField(
-                  autofocus: true,
-                  controller: textFieldController,
-                  inputFormatters: [LengthLimitingTextInputFormatter(10)],
-                ),
+                child: TextField(autofocus: true, controller: textFieldController),
               ),
             ],
           ),

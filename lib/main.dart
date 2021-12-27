@@ -29,6 +29,13 @@ class MyApp extends StatelessWidget {
           onPrimary: Colors.white,
           onSecondary: Colors.white,
         ),
+        cardTheme: CardTheme(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 1, color: Colors.grey[300]!),
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       ),
       home: const AuthGate(),
     );
