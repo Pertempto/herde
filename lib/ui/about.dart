@@ -64,10 +64,7 @@ Special thanks to our beta testers:
           contentPadding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
           content: Text(credit, style: textStyle),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Awesome!!'),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
+            TextButton(child: const Text('Awesome!!'), onPressed: () => Navigator.of(context).pop()),
           ],
         );
       },

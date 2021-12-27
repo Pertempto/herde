@@ -18,7 +18,7 @@ class ListItem extends StatelessWidget {
     return ListTile(
       title: Text(title, style: leadingStyle),
       trailing: Text(value ?? '', style: trailingStyle),
-      subtitle: Text(subtitle ?? '', style: subtitleStyle),
+      subtitle: subtitle == null ? null : Text(subtitle!, style: subtitleStyle),
       onTap: onTap,
       dense: false,
     );
