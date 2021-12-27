@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:herde/data/data_store.dart';
 import 'package:herde/data/herd.dart';
+import 'package:herde/ui/type_selector.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'animal_icon.dart';
@@ -18,15 +19,18 @@ class HerdSettings extends StatefulWidget {
 
 class _HerdSettingsState extends State<HerdSettings> {
   late String herdId = widget.herdId;
-  String name = 'My Herd';
-  String type = 'Goat';
+  String name = '';
+  String type = '';
 
   bool get isNew => herdId.isEmpty;
 
   @override
   void initState() {
     super.initState();
-    if (!isNew) {
+    if (isNew) {
+      name = 'My Herd';
+      type = 'Goat';
+    } else {
       DataStore.herdQuery(herdId).get().then((value) {
         Herd herd = Herd.fromJson(value.docs.first.data() as Map<String, dynamic>);
         setState(() {
@@ -133,7 +137,13 @@ class _HerdSettingsState extends State<HerdSettings> {
   }
 
   /* Allow the user to edit the herd name. */
-  _editHerdType(BuildContext context) {}
+  _editHerdType(BuildContext context) async {
+    // TODO: don't allow changing the type if the herd contains animals.
+    String newType = await Navigator.push(context, MaterialPageRoute(builder: (context) => const TypeSelector()));
+    setState(() {
+      type = newType;
+    });
+  }
 
   /* Allow the user to delete the herd. */
   _deleteHerd() {
