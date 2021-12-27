@@ -1,9 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../data/data_store.dart';
+import '../data/herde_user.dart';
 import '../herde_icons.dart';
 import 'settings.dart';
 
@@ -36,19 +36,10 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
-      body: ListView(
-        children: items.map((name) => ListTile(leading: Icon(icons[name]), title: Text(name))).toList(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Random rand = Random();
-          String name = icons.keys.toList()[rand.nextInt(icons.length)];
-          setState(() {
-            items.add(name);
-          });
+      body: DataStore.userWidget(
+        builder: (HerdeUser user) {
+          return Center(child: Text('Hello, ${user.name}!', style: Theme.of(context).textTheme.headline3!));
         },
-        tooltip: 'Add Animal',
-        child: const Icon(MdiIcons.plus),
       ),
     );
   }
