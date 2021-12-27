@@ -19,11 +19,7 @@ class AuthGate extends StatelessWidget {
             headerBuilder: (context, constraints, _) {
               return Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: [
-                    Expanded(child: Image.asset('assets/icon/herde.png')),
-                  ],
-                ),
+                child: Column(children: [Expanded(child: Image.asset('assets/icon/herde.png'))]),
               );
             },
             providerConfigs: const [EmailProviderConfiguration()],
