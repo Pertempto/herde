@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutterfire_ui/auth.dart';
 
-import '../data/data_store.dart';
 import 'home.dart';
 
 class AuthGate extends StatelessWidget {
@@ -28,17 +27,6 @@ class AuthGate extends StatelessWidget {
               );
             },
             providerConfigs: const [EmailProviderConfiguration()],
-            actions: [
-              AuthStateChangeAction<UserCreated>((context, state) {
-                User user = state.credential.user!;
-                String email = user.email ?? '';
-                String name = 'New User';
-                if (email.split('@').isNotEmpty) {
-                  name = email.split('@').first;
-                }
-                DataStore.createUser(uid: user.uid, name: name);
-              })
-            ],
           );
         }
         return const Home();
