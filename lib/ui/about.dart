@@ -21,7 +21,6 @@ class _AboutState extends State<About> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('Try tapping the app version!'),
         duration: Duration(milliseconds: 2000),
-        behavior: SnackBarBehavior.floating,
       ));
       setState(() {
         appVersion = 'v' + value.version;

@@ -5,7 +5,7 @@ import 'package:herde/data/herd.dart';
 import 'package:herde/ui/type_selector.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'animal_icon.dart';
+import 'type_icon.dart';
 import 'list_item.dart';
 
 class HerdSettings extends StatefulWidget {
@@ -21,6 +21,7 @@ class _HerdSettingsState extends State<HerdSettings> {
   late String herdId = widget.herdId;
   String name = '';
   String type = '';
+  bool canEditType = true;
 
   bool get isNew => herdId.isEmpty;
 
@@ -36,6 +37,7 @@ class _HerdSettingsState extends State<HerdSettings> {
         setState(() {
           name = herd.name;
           type = herd.type;
+          canEditType = herd.animals.isEmpty;
         });
       });
     }
@@ -46,11 +48,11 @@ class _HerdSettingsState extends State<HerdSettings> {
     return DataStore.userWidget(builder: (user) {
       Widget body = ListView(
         children: [
-          ListItem(title: 'Name', value: name, onTap: () => setState(() => _editHerdName(context))),
+          ListItem(title: 'Name', value: name, onTap: () => _editName(context)),
           ListItem(
             title: 'Type',
-            trailing: AnimalIcon(type: type, showLabel: true),
-            onTap: () => setState(() => _editHerdType(context)),
+            trailing: TypeIcon(type: type, showLabel: true),
+            onTap: () => _editType(context),
           ),
           if (!isNew)
             Padding(
@@ -58,7 +60,7 @@ class _HerdSettingsState extends State<HerdSettings> {
               child: OutlinedButton.icon(
                 icon: const Icon(MdiIcons.delete),
                 label: const Text('Delete Herd'),
-                onPressed: _deleteHerd,
+                onPressed: _delete,
                 style: OutlinedButton.styleFrom(primary: Colors.red),
               ),
             ),
@@ -92,7 +94,7 @@ class _HerdSettingsState extends State<HerdSettings> {
   }
 
   /* Allow the user to edit the herd name. */
-  _editHerdName(BuildContext context) {
+  _editName(BuildContext context) {
     TextEditingController textFieldController = TextEditingController(text: name);
     showDialog(
       context: context,
@@ -137,16 +139,24 @@ class _HerdSettingsState extends State<HerdSettings> {
   }
 
   /* Allow the user to edit the herd name. */
-  _editHerdType(BuildContext context) async {
-    // TODO: don't allow changing the type if the herd contains animals.
-    String newType = await Navigator.push(context, MaterialPageRoute(builder: (context) => const TypeSelector()));
-    setState(() {
-      type = newType;
-    });
+  _editType(BuildContext context) async {
+    if (canEditType) {
+      String? newType = await Navigator.push(context, MaterialPageRoute(builder: (context) => const TypeSelector()));
+      if (newType != null) {
+        setState(() {
+          type = newType;
+        });
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('The herd already contains animals. The type is locked.'),
+        duration: Duration(milliseconds: 2000),
+      ));
+    }
   }
 
   /* Allow the user to delete the herd. */
-  _deleteHerd() {
+  _delete() {
     showDialog(
       context: context,
       builder: (context) {

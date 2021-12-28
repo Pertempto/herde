@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'animal_icon.dart';
+import 'type_icon.dart';
 import 'list_item.dart';
 
 class TypeSelector extends StatelessWidget {
@@ -18,7 +18,7 @@ class TypeSelector extends StatelessWidget {
       body: ListView(
         children: types
             .map((type) =>
-                ListItem(title: type, trailing: AnimalIcon(type: type), onTap: () => Navigator.pop(context, type)))
+                ListItem(title: type, trailing: TypeIcon(type: type), onTap: () => Navigator.pop(context, type)))
             .toList(),
       ),
     );

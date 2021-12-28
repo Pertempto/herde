@@ -4,12 +4,12 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import '../herde_icons.dart';
 
-class AnimalIcon extends StatelessWidget {
+class TypeIcon extends StatelessWidget {
   static const Map<String, IconData> icons = {'Cow': HerdeIcons.cow, 'Goat': HerdeIcons.goat, 'Cat': HerdeIcons.cat};
   final String type;
   final bool showLabel;
 
-  const AnimalIcon({required this.type, this.showLabel = false, Key? key}) : super(key: key);
+  const TypeIcon({required this.type, this.showLabel = false, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
