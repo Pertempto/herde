@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:herde/data/data_store.dart';
-import 'package:herde/data/herd.dart';
-import 'package:herde/ui/type_selector.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'type_icon.dart';
+import '../data/animal.dart';
+import '../data/data_store.dart';
+import '../data/herd.dart';
+import '../ui/type_selector.dart';
 import 'list_item.dart';
+import 'type_icon.dart';
 
 class HerdSettings extends StatefulWidget {
   final String herdId;
@@ -21,9 +22,11 @@ class _HerdSettingsState extends State<HerdSettings> {
   late String herdId = widget.herdId;
   String name = '';
   String type = '';
-  bool canEditType = true;
+  List<Animal> animals = [];
 
   bool get isNew => herdId.isEmpty;
+
+  bool get canEditType => animals.isEmpty;
 
   @override
   void initState() {
@@ -37,7 +40,7 @@ class _HerdSettingsState extends State<HerdSettings> {
         setState(() {
           name = herd.name;
           type = herd.type;
-          canEditType = herd.animals.isEmpty;
+          animals = herd.animals;
         });
       });
     }
@@ -80,7 +83,7 @@ class _HerdSettingsState extends State<HerdSettings> {
           if (!isNew)
             IconButton(
               onPressed: () {
-                Herd herd = Herd(id: herdId, ownerId: user.uid, name: name, type: type);
+                Herd herd = Herd(id: herdId, ownerId: user.uid, name: name, type: type, animals: animals);
                 DataStore.updateHerd(herd: herd);
                 Navigator.of(context).pop();
               },
