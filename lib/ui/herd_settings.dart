@@ -22,7 +22,7 @@ class _HerdSettingsState extends State<HerdSettings> {
   late String herdId = widget.herdId;
   String name = '';
   String type = '';
-  List<Animal> animals = [];
+  Map<String, Animal> animals = {};
 
   bool get isNew => herdId.isEmpty;
 

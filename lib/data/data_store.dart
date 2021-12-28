@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutterfire_ui/firestore.dart';
 
+import 'animal.dart';
 import 'herd.dart';
 import 'herde_user.dart';
 
@@ -81,6 +82,20 @@ class DataStore {
         }
         Herd herd = Herd.fromJson(data);
         return builder(herd);
+      },
+    );
+  }
+
+  static FirestoreQueryBuilder animalWidget(
+      {required String herdId, required String animalId, required Function(Herd?, Animal?) builder}) {
+    return firestoreWidget(
+      query: herdQuery(herdId),
+      builder: (data) {
+        if (data == null) {
+          return builder(null, null);
+        }
+        Herd herd = Herd.fromJson(data);
+        return builder(herd, herd.animals[animalId]);
       },
     );
   }

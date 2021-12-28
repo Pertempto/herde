@@ -14,7 +14,7 @@ class Herd with _$Herd {
       required String ownerId,
       required String name,
       required String type,
-      @Default([]) List<Animal> animals}) = _Herde;
+      @Default({}) Map<String, Animal> animals}) = _Herde;
 
   factory Herd.fromJson(Map<String, dynamic> json) => _$HerdFromJson(json);
 }

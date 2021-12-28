@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'note.dart';
+
 part 'animal.freezed.dart';
 
 part 'animal.g.dart';
@@ -8,8 +10,14 @@ part 'animal.g.dart';
 class Animal with _$Animal {
   const Animal._();
 
-  factory Animal({@Default(-1) int tagNumber, required String name, required String type, required String category}) =
-      _Animal;
+  factory Animal({
+    required String id,
+    @Default(-1) int tagNumber,
+    required String name,
+    required String type,
+    required String category,
+    @Default({}) Map<String, Note> notes,
+  }) = _Animal;
 
   factory Animal.fromJson(Map<String, dynamic> json) => _$AnimalFromJson(json);
 

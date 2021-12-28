@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:herde/data/animal_manager.dart';
 import 'package:herde/data/herd.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/animal.dart';
 import '../data/data_store.dart';
 import '../data/herde_user.dart';
+import 'animal.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
 import 'herd_settings.dart';
@@ -81,11 +83,10 @@ class _HerdeListState extends State<HerdeList> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(8, 8, 8, 80),
                       child: Column(
-                        children: List.generate(herd.animals.length, (int index) {
-                          Animal animal = herd.animals[index];
+                        children: herd.animals.values.map((Animal animal) {
                           return InkWell(
                             borderRadius: BorderRadius.circular(8),
-                            onTap: () => _goToAnimal(herd, index),
+                            onTap: () => _goToAnimal(animal: animal, herd: herd),
                             child: Card(
                               child: Container(
                                 width: double.infinity,
@@ -102,7 +103,7 @@ class _HerdeListState extends State<HerdeList> {
                               ),
                             ),
                           );
-                        }),
+                        }).toList(),
                       ),
                     ),
                   ),
@@ -115,8 +116,7 @@ class _HerdeListState extends State<HerdeList> {
                 Animal? animal = await Navigator.push(
                     context, MaterialPageRoute(builder: (context) => AnimalSettings(type: herd.type)));
                 if (animal != null) {
-                  List<Animal> animals = [...herd.animals, animal];
-                  DataStore.updateHerd(herd: herd.copyWith(animals: animals));
+                  AnimalManager.addAnimal(herd, animal);
                 }
               },
             ),
@@ -124,22 +124,8 @@ class _HerdeListState extends State<HerdeList> {
         });
   }
 
-  _goToAnimal(Herd herd, int index) async {
-    Animal? animal = await Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) => AnimalSettings(
-              animal: herd.animals[index],
-              onDelete: () {
-                List<Animal> animals = herd.animals.toList();
-                animals.removeAt(index);
-                DataStore.updateHerd(herd: herd.copyWith(animals: animals));
-              })),
-    );
-    if (animal != null) {
-      List<Animal> animals = herd.animals.toList();
-      animals[index] = animal;
-      DataStore.updateHerd(herd: herd.copyWith(animals: animals));
-    }
+  _goToAnimal({required Animal animal, required Herd herd}) async {
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)));
   }
 }

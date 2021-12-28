@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:herde/data/animal.dart';
 import 'package:herde/data/data_store.dart';
+import 'package:herde/data/note.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'category_icon.dart';
@@ -22,10 +23,12 @@ class AnimalSettings extends StatefulWidget {
 
 class _AnimalSettingsState extends State<AnimalSettings> {
   late Animal? animal = widget.animal;
+  String id = '';
   int tagNumber = -1;
   String name = '';
   String type = '';
   String category = '';
+  Map<String, Note> notes = {};
 
   bool get isNew => animal == null;
 
@@ -37,10 +40,12 @@ class _AnimalSettingsState extends State<AnimalSettings> {
     if (animal == null) {
       type = widget.type ?? 'Goat';
     } else {
+      id = animal!.id;
       tagNumber = animal!.tagNumber;
       name = animal!.name;
       type = animal!.type;
       category = animal!.category;
+      notes = animal!.notes;
     }
   }
 
@@ -76,7 +81,14 @@ class _AnimalSettingsState extends State<AnimalSettings> {
           if (isValid)
             IconButton(
               onPressed: () {
-                Navigator.of(context).pop(Animal(tagNumber: tagNumber, name: name, type: type, category: category));
+                Navigator.of(context).pop(Animal(
+                  id: id,
+                  tagNumber: tagNumber,
+                  name: name,
+                  type: type,
+                  category: category,
+                  notes: notes,
+                ));
               },
               icon: const Icon(MdiIcons.check),
               tooltip: isNew ? 'Add Animal' : 'Save Animal',
