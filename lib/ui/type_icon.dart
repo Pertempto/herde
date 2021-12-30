@@ -13,6 +13,7 @@ class TypeIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
     TextTheme textTheme = Theme.of(context).textTheme;
     TextStyle textStyle = textTheme.headline6!.copyWith(fontWeight: FontWeight.w400);
     if (showLabel) {
@@ -21,13 +22,13 @@ class TypeIcon extends StatelessWidget {
         children: [
           Text(type, style: textStyle),
           const SizedBox(width: 8),
-          Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: Colors.black54),
+          Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: colorScheme.onBackground),
         ],
       );
     } else {
       return Tooltip(
         message: type,
-        child: Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: Colors.black54),
+        child: Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: colorScheme.onBackground),
       );
     }
   }
