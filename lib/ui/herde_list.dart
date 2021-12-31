@@ -7,44 +7,19 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 import '../data/animal.dart';
 import '../data/animal_manager.dart';
+import '../data/category.dart';
 import '../data/data_store.dart';
 import '../data/herd.dart';
 import '../data/herde_user.dart';
+import '../shared/sort_filter.dart';
 import 'animal_details.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
 import 'herd_settings.dart';
+import 'parent_selector.dart';
 import 'settings.dart';
 import 'type_icon.dart';
-
-enum SortField {
-  tagNumber,
-  name,
-  category,
-  age,
-  father,
-  mother,
-}
-
-String fieldName(SortField field) {
-  switch (field) {
-    case SortField.tagNumber:
-      return 'Tag Number';
-    case SortField.name:
-      return 'Name';
-    case SortField.age:
-      return 'Age';
-    case SortField.category:
-      return 'Category';
-    case SortField.father:
-      return 'Father';
-    case SortField.mother:
-      return 'Mother';
-    default:
-      return 'Unknown';
-  }
-}
 
 class HerdeList extends StatefulWidget {
   final HerdeUser user;
@@ -57,48 +32,7 @@ class HerdeList extends StatefulWidget {
 
 class _HerdeListState extends State<HerdeList> {
   late ConfettiController _confettiController;
-  SortField sortField = SortField.age;
-  bool ascendingSort = true;
-
-  int Function(Animal, Animal) getSortFunction(Herd herd) {
-    Map map = {
-      SortField.tagNumber: (Animal a, Animal b) {
-        if (a.tagNumber == -1) return 1;
-        if (b.tagNumber == -1) return -1;
-        return a.tagNumber.compareTo(b.tagNumber) * sortFactor;
-      },
-      SortField.name: (Animal a, Animal b) {
-        if (a.name.isEmpty) return 1;
-        if (b.name.isEmpty) return -1;
-        return a.name.compareTo(b.name) * sortFactor;
-      },
-      SortField.age: (Animal a, Animal b) {
-        if (a.birthDate == null) return 1;
-        if (b.birthDate == null) return -1;
-        return -a.birthDate!.compareTo(b.birthDate!) * sortFactor;
-      },
-      SortField.category: (Animal a, Animal b) {
-        return a.category.sortIndex.compareTo(b.category.sortIndex) * sortFactor;
-      },
-      SortField.father: (Animal a, Animal b) {
-        if (herd.animals[a.fatherId] == null) return 1;
-        if (herd.animals[b.fatherId] == null) return -1;
-        Animal aFather = herd.animals[a.fatherId]!;
-        Animal bFather = herd.animals[b.fatherId]!;
-        return aFather.fullName.compareTo(bFather.fullName) * sortFactor;
-      },
-      SortField.mother: (Animal a, Animal b) {
-        if (herd.animals[a.motherId] == null) return 1;
-        if (herd.animals[b.motherId] == null) return -1;
-        Animal aMother = herd.animals[a.motherId]!;
-        Animal bMother = herd.animals[b.motherId]!;
-        return aMother.fullName.compareTo(bMother.fullName) * sortFactor;
-      },
-    };
-    return map[sortField];
-  }
-
-  int get sortFactor => ascendingSort ? 1 : -1;
+  SortFilter sortFilter = SortFilter();
 
   @override
   void initState() {
@@ -122,18 +56,23 @@ class _HerdeListState extends State<HerdeList> {
             DataStore.setCurrentHerd('');
             return Container();
           }
-          List<Animal> animals = herd.animals.values.toList();
-          animals.sort(getSortFunction(herd));
+          List<Animal> animals = sortFilter.process(herd);
+
           return Stack(
             children: [
               Scaffold(
-                appBar: AppBar(title: Text(herd.name), actions: [
-                  IconButton(
-                    icon: const Icon(MdiIcons.cog),
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
-                    tooltip: 'Settings',
-                  )
-                ]),
+                appBar: AppBar(
+                  title: Text(herd.name),
+                  leading: TypeIcon(type: herd.type, onPrimary: true),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(MdiIcons.cog),
+                      onPressed: () =>
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
+                      tooltip: 'Settings',
+                    )
+                  ],
+                ),
                 body: Column(
                   verticalDirection: VerticalDirection.up,
                   children: [
@@ -141,11 +80,10 @@ class _HerdeListState extends State<HerdeList> {
                       elevation: 2,
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        width: double.infinity,
+                        child: Wrap(
+                          alignment: WrapAlignment.end,
                           children: [
-                            TypeIcon(type: herd.type),
-                            const Spacer(),
                             TextButton.icon(
                               icon: const Icon(MdiIcons.pencil),
                               onPressed: () {
@@ -156,15 +94,14 @@ class _HerdeListState extends State<HerdeList> {
                             ),
                             TextButton.icon(
                               icon: const Icon(MdiIcons.sort),
-                              onPressed: _selectSortField,
-                              label: Text(fieldName(sortField)),
+                              onPressed: () => _selectSortField(herd: herd),
+                              label: Text(sortFilter.sortFieldName),
                             ),
-                            // TODO: add filter feature
-                            // IconButton(
-                            //   icon: const Icon(MdiIcons.filterVariant),
-                            //   onPressed: () {},
-                            //   tooltip: 'Filter Animals',
-                            // ),
+                            TextButton.icon(
+                              icon: const Icon(MdiIcons.filterVariant),
+                              onPressed: () => _selectFilter(herd: herd),
+                              label: Text(sortFilter.getFilterString(herd)),
+                            ),
                           ],
                         ),
                       ),
@@ -194,13 +131,15 @@ class _HerdeListState extends State<HerdeList> {
                                         const SizedBox(width: 8),
                                         Text(animal.fullName, style: textTheme.headline6),
                                         const Spacer(),
-                                        if (sortField == SortField.age)
+                                        if (sortFilter.sortField == Field.age)
                                           Text(animal.ageString, style: textTheme.headline6),
-                                        if (sortField == SortField.category)
+                                        if (sortFilter.sortField == Field.category)
                                           Text(animal.categoryName, style: textTheme.headline6),
-                                        if (sortField == SortField.father && herd.animals[animal.fatherId] != null)
+                                        if (sortFilter.sortField == Field.father &&
+                                            herd.animals[animal.fatherId] != null)
                                           Text(herd.animals[animal.fatherId]!.fullName, style: textTheme.headline6),
-                                        if (sortField == SortField.mother && herd.animals[animal.motherId] != null)
+                                        if (sortFilter.sortField == Field.mother &&
+                                            herd.animals[animal.motherId] != null)
                                           Text(herd.animals[animal.motherId]!.fullName, style: textTheme.headline6),
                                       ],
                                     ),
@@ -250,12 +189,12 @@ class _HerdeListState extends State<HerdeList> {
   }
 
   /* Allow the user to set the sort. */
-  _selectSortField() {
+  _selectSortField({required Herd herd}) {
     showDialog(
       context: context,
       builder: (context) {
-        SortField? selectedField = sortField;
-        bool selectAscendingSort = ascendingSort;
+        Field? selectedField = sortFilter.sortField;
+        bool selectAscendingSort = sortFilter.ascendingSort;
         return StatefulBuilder(builder: (context, innerSetState) {
           return AlertDialog(
             title: const Text('Sort'),
@@ -273,14 +212,11 @@ class _HerdeListState extends State<HerdeList> {
                     const Spacer(),
                     DropdownButton(
                       value: selectedField,
-                      onChanged: (SortField? value) {
+                      onChanged: (Field? value) {
                         innerSetState(() => selectedField = value);
                       },
-                      items: SortField.values
-                          .map((s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(fieldName(s)),
-                              ))
+                      items: sortFilter.sortFields
+                          .map((s) => DropdownMenuItem(value: s, child: Text(SortFilter.fieldName(s))))
                           .toList(),
                     ),
                   ],
@@ -313,8 +249,8 @@ class _HerdeListState extends State<HerdeList> {
                   Navigator.of(context).pop();
                   if (selectedField != null) {
                     setState(() {
-                      sortField = selectedField!;
-                      ascendingSort = selectAscendingSort;
+                      sortFilter.sortField = selectedField!;
+                      sortFilter.ascendingSort = selectAscendingSort;
                     });
                   }
                 },
@@ -324,6 +260,133 @@ class _HerdeListState extends State<HerdeList> {
         });
       },
     );
+  }
+
+  /* Allow the user to set the filter. */
+  _selectFilter({required Herd herd}) async {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    TextTheme textTheme = Theme.of(context).textTheme;
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          Field filterField = sortFilter.filterField;
+          String? filterValue = sortFilter.filterValue;
+          return StatefulBuilder(builder: (context, innerSetState) {
+            _editParent(Parent parent) async {
+              String? newParentId = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ParentSelector(parent: parent, herd: herd)),
+              );
+              if (newParentId != null) {
+                innerSetState(() {
+                  filterValue = newParentId;
+                });
+              }
+            }
+
+            Widget filterValueWidget = Container();
+            VoidCallback? editFilterValue;
+
+            if (filterField == Field.father) {
+              filterValueWidget = DataStore.animalWidget(
+                  herdId: herd.id,
+                  animalId: filterValue,
+                  builder: (herd, animal) {
+                    return Text(animal?.fullName ?? '',
+                        style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
+                  });
+              editFilterValue = () => _editParent(Parent.father);
+            } else if (filterField == Field.mother) {
+              filterValueWidget = DataStore.animalWidget(
+                  herdId: herd.id,
+                  animalId: filterValue,
+                  builder: (herd, animal) {
+                    return Text(animal?.fullName ?? '',
+                        style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
+                  });
+              editFilterValue = () => _editParent(Parent.mother);
+            }
+            return Container(
+              color: colorScheme.surface,
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Filter', style: textTheme.headline5),
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: <Widget>[
+                        Text('Field:', style: textTheme.headline6),
+                        const Spacer(),
+                        DropdownButton(
+                          value: filterField,
+                          onChanged: (Field? value) {
+                            if (value != null) {
+                              innerSetState(() {
+                                filterField = value;
+                                filterValue = null;
+                              });
+                            }
+                          },
+                          items: sortFilter.filterFields
+                              .map((s) => DropdownMenuItem(value: s, child: Text(SortFilter.fieldName(s))))
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    alignment: Alignment.center,
+                    child: Row(
+                      children: <Widget>[
+                        Text('Value:', style: textTheme.headline6),
+                        const Spacer(),
+                        filterValueWidget,
+                        if (filterValue != null)
+                          IconButton(
+                              onPressed: () => innerSetState(() => filterValue = null),
+                              icon: const Icon(MdiIcons.close)),
+                        if (editFilterValue != null)
+                          IconButton(onPressed: editFilterValue, icon: const Icon(MdiIcons.pencil)),
+                      ],
+                    ),
+                  ),
+                  ButtonBar(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          setState(() {
+                            sortFilter.filterField = Field.none;
+                            sortFilter.filterValue = null;
+                          });
+                        },
+                        icon: const Icon(MdiIcons.close),
+                        label: const Text('Clear Filter'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {
+                            sortFilter.filterField = filterField;
+                            sortFilter.filterValue = filterValue;
+                          });
+                        },
+                        icon: const Icon(MdiIcons.filterVariant),
+                        label: const Text('Filter'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          });
+        });
   }
 
   /* Show the Animal preview bottom sheet. */

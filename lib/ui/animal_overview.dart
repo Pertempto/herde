@@ -50,10 +50,11 @@ class AnimalOverview extends StatelessWidget {
               }
               return false;
             }).toList();
+            // Sort the children by oldest to youngest.
             childList.sort((Animal a, Animal b) {
               if (a.birthDate == null) return 1;
               if (b.birthDate == null) return -1;
-              return -a.birthDate!.compareTo(b.birthDate!);
+              return a.birthDate!.compareTo(b.birthDate!);
             });
             String childrenString = childList.isEmpty ? 'None' : childList.map((a) => a.fullName).join(', ');
             children.add(Text('Children: $childrenString', style: textStyle));

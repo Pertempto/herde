@@ -8,8 +8,9 @@ class TypeIcon extends StatelessWidget {
   static const Map<String, IconData> icons = {'Cow': HerdeIcons.cow, 'Goat': HerdeIcons.goat, 'Cat': HerdeIcons.cat};
   final String type;
   final bool showLabel;
+  final bool onPrimary;
 
-  const TypeIcon({required this.type, this.showLabel = false, Key? key}) : super(key: key);
+  const TypeIcon({required this.type, this.showLabel = false, this.onPrimary = false, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +23,15 @@ class TypeIcon extends StatelessWidget {
         children: [
           Text(type, style: textStyle),
           const SizedBox(width: 8),
-          Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: colorScheme.onBackground),
+          Icon(icons[type] ?? MdiIcons.helpCircleOutline,
+              color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
         ],
       );
     } else {
       return Tooltip(
         message: type,
-        child: Icon(icons[type] ?? MdiIcons.helpCircleOutline, color: colorScheme.onBackground),
+        child: Icon(icons[type] ?? MdiIcons.helpCircleOutline,
+            color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
       );
     }
   }
