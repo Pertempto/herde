@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../data/animal.dart';
 import '../data/data_store.dart';
@@ -27,8 +26,8 @@ class AnimalOverview extends StatelessWidget {
           children = [
             Text(animal.fullName, style: textTheme.headline4),
             const SizedBox(height: 12),
-            TypeIcon(type: animal.type, showLabel: true),
-            CategoryIcon(category: animal.category, showLabel: true),
+            TypeIcon(type: animal.typeName, showLabel: true),
+            CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName, showLabel: true),
           ];
           if (animal.birthDate != null) {
             children.add(Text('Born: ${animal.birthDateString} (${animal.ageString})', style: textStyle));

@@ -22,6 +22,7 @@ enum SortField {
   tagNumber,
   name,
   age,
+  category,
 }
 
 String fieldName(SortField field) {
@@ -32,6 +33,8 @@ String fieldName(SortField field) {
       return 'Name';
     case SortField.age:
       return 'Age';
+    case SortField.category:
+      return 'Category';
     default:
       return 'Unknown';
   }
@@ -67,7 +70,10 @@ class _HerdeListState extends State<HerdeList> {
         if (a.birthDate == null) return 1;
         if (b.birthDate == null) return -1;
         return -a.birthDate!.compareTo(b.birthDate!) * sortFactor;
-      }
+      },
+      SortField.category: (Animal a, Animal b) {
+        return a.category.sortIndex.compareTo(b.category.sortIndex) * sortFactor;
+      },
     };
     return map[sortField];
   }
@@ -164,12 +170,14 @@ class _HerdeListState extends State<HerdeList> {
                                     child: Row(
                                       mainAxisSize: MainAxisSize.max,
                                       children: [
-                                        CategoryIcon(category: animal.category),
+                                        CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName),
                                         const SizedBox(width: 8),
                                         Text(animal.fullName, style: textTheme.headline6),
                                         const Spacer(),
                                         if (sortField == SortField.age)
                                           Text(animal.ageString, style: textTheme.headline6),
+                                        if (sortField == SortField.category)
+                                          Text(animal.categoryName, style: textTheme.headline6),
                                       ],
                                     ),
                                   ),
@@ -189,7 +197,7 @@ class _HerdeListState extends State<HerdeList> {
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                AnimalSettings(animal: Animal(id: '', name: '', type: 'Goat', category: ''))));
+                                AnimalSettings(animal: Animal(id: '', name: '', typeName: herd.type))));
                     if (animal != null) {
                       AnimalManager.addAnimal(herd, animal);
                       _confettiController.play();

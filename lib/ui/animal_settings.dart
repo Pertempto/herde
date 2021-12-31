@@ -24,7 +24,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
 
   bool get isNew => animal.id.isEmpty;
 
-  bool get isValid => (animal.tagNumber != -1 || animal.name.isNotEmpty) && animal.category.isNotEmpty;
+  bool get isValid => (animal.tagNumber != -1 || animal.name.isNotEmpty) && animal.categoryName.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
           ListItem(title: 'Name', value: animal.name, onTap: () => _editName(context)),
           ListItem(
             title: 'Category',
-            trailing: CategoryIcon(category: animal.category, showLabel: true),
+            trailing: CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName, showLabel: true),
             onTap: () => _editCategory(context),
           ),
           ListItem(
@@ -197,11 +197,11 @@ class _AnimalSettingsState extends State<AnimalSettings> {
   _editCategory(BuildContext context) async {
     String? newCategory = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CategorySelector(type: animal.type)),
+      MaterialPageRoute(builder: (context) => CategorySelector(typeName: animal.typeName)),
     );
     if (newCategory != null) {
       setState(() {
-        animal = animal.copyWith(category: newCategory);
+        animal = animal.copyWith(categoryName: newCategory);
       });
     }
   }

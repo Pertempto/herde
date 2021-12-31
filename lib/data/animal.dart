@@ -1,6 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:intl/intl.dart';
 
+import 'category.dart';
 import 'note.dart';
 
 part 'animal.freezed.dart';
@@ -11,12 +12,15 @@ part 'animal.g.dart';
 class Animal with _$Animal {
   const Animal._();
 
+  // @AnimalConverter()
   factory Animal({
     required String id,
     @Default(-1) int tagNumber,
     required String name,
-    required String type,
-    required String category,
+    // ignore: invalid_annotation_target
+    @JsonKey(name: 'type') required String typeName,
+    // ignore: invalid_annotation_target
+    @JsonKey(name: 'category') @Default('') String categoryName,
     DateTime? birthDate,
     @Default({}) Map<String, Note> notes,
   }) = _Animal;
@@ -32,6 +36,8 @@ class Animal with _$Animal {
       return tagNumber.toString() + ' - ' + name;
     }
   }
+
+  Category get category => getCategory(typeName, categoryName);
 
   String get birthDateString {
     if (birthDate == null) {

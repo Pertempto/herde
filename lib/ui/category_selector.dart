@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:herde/data/category.dart';
 
 import 'category_icon.dart';
 import 'list_item.dart';
 
 class CategorySelector extends StatelessWidget {
-  static const Map<String, List<String>> categories = {
-    'Goat': ['Buck', 'Wether', 'Doe', 'Kid'],
-    'Cow': ['Bull', 'Steer', 'Cow', 'Heifer', 'Calf'],
-    'Cat': ['Tom', 'Gib', 'Queen', 'Kitten'],
-  };
-  final String type;
+  final String typeName;
 
-  const CategorySelector({required this.type, Key? key}) : super(key: key);
+  const CategorySelector({required this.typeName, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +17,10 @@ class CategorySelector extends StatelessWidget {
         title: const Text('Select Category'),
       ),
       body: ListView(
-        children: (categories[type] ?? [])
+        children: getCategoryNames(typeName)
             .map((category) => ListItem(
                 title: category,
-                trailing: CategoryIcon(category: category),
+                trailing: CategoryIcon(typeName: typeName, categoryName: category),
                 onTap: () => Navigator.pop(context, category)))
             .toList(),
       ),
