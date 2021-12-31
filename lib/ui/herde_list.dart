@@ -11,6 +11,7 @@ import '../data/animal.dart';
 import '../data/data_store.dart';
 import '../data/herde_user.dart';
 import 'animal.dart';
+import 'animal_overview.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
 import 'herd_settings.dart';
@@ -105,7 +106,12 @@ class _HerdeListState extends State<HerdeList> {
                             children: animals.map((Animal animal) {
                               return InkWell(
                                 borderRadius: BorderRadius.circular(8),
-                                onTap: () => _goToAnimal(animal: animal, herd: herd),
+                                onTap: () => _previewAnimal(animal: animal, herd: herd),
+                                onLongPress: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)),
+                                ),
                                 child: Card(
                                   child: Container(
                                     width: double.infinity,
@@ -159,8 +165,48 @@ class _HerdeListState extends State<HerdeList> {
         });
   }
 
-  _goToAnimal({required Animal animal, required Herd herd}) async {
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)));
+  /* Show the Animal preview bottom sheet. */
+  _previewAnimal({required Animal animal, required Herd herd}) async {
+    ColorScheme colorScheme = Theme.of(context).colorScheme;
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return Container(
+            color: colorScheme.surface,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AnimalOverview(animalId: animal.id, herdId: herd.id),
+                ButtonBar(
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (context) => AnimalSettings(animal: animal)));
+                      },
+                      icon: const Icon(MdiIcons.pencil),
+                      label: const Text('Edit'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)));
+                      },
+                      icon: const Icon(MdiIcons.eye),
+                      label: const Text('View'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
   }
 }

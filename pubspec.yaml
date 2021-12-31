@@ -86,5 +86,6 @@ flutter_icons:
   android: "launcher_icon"
   ios: "launcher_icon"
   image_path: "assets/icon/herde.png"
+  image_path_ios: "assets/icon/herde-ios.png"
   adaptive_icon_background: "#388E3C"
   adaptive_icon_foreground: "assets/icon/herde.png"

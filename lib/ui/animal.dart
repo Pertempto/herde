@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:herde/data/animal_manager.dart';
 import 'package:herde/data/data_store.dart';
 import 'package:herde/data/note.dart';
-import 'package:herde/ui/category_icon.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/animal.dart';
 import '../data/herd.dart';
+import 'animal_overview.dart';
 import 'animal_settings.dart';
-import 'type_icon.dart';
 
 class AnimalScreen extends StatefulWidget {
   final String animalId;
@@ -35,11 +34,7 @@ class _AnimalScreenState extends State<AnimalScreen> {
             List<Note> notes = animal.notes.values.toList();
             notes.sort((a, b) => -a.createdTimestamp.compareTo(b.createdTimestamp));
             children = [
-              Text(animal.fullName, style: textTheme.headline4),
-              const SizedBox(height: 12),
-              TypeIcon(type: animal.type, showLabel: true),
-              CategoryIcon(category: animal.category, showLabel: true),
-              const SizedBox(height: 12),
+              AnimalOverview(animalId: widget.animalId, herdId: widget.herdId),
               const Divider(),
               Row(
                 children: [
@@ -68,7 +63,6 @@ class _AnimalScreenState extends State<AnimalScreen> {
                               children: [
                                 Text(createdDateString),
                                 const Spacer(),
-
                               ],
                             ),
                             if (wasEdited) Text('(Edited: $editedDateString)'),
