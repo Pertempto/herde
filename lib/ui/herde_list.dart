@@ -18,6 +18,25 @@ import 'herd_settings.dart';
 import 'settings.dart';
 import 'type_icon.dart';
 
+enum SortField {
+  tagNumber,
+  name,
+  age,
+}
+
+String fieldName(SortField field) {
+  switch (field) {
+    case SortField.tagNumber:
+      return 'Tag Number';
+    case SortField.name:
+      return 'Name';
+    case SortField.age:
+      return 'Age';
+    default:
+      return 'Unknown';
+  }
+}
+
 class HerdeList extends StatefulWidget {
   final HerdeUser user;
 
@@ -29,6 +48,31 @@ class HerdeList extends StatefulWidget {
 
 class _HerdeListState extends State<HerdeList> {
   late ConfettiController _confettiController;
+  SortField sortField = SortField.tagNumber;
+  bool ascendingSort = true;
+
+  int Function(Animal, Animal) get sortFunction {
+    Map map = {
+      SortField.tagNumber: (Animal a, Animal b) {
+        if (a.tagNumber == -1) return 1;
+        if (b.tagNumber == -1) return -1;
+        return a.tagNumber.compareTo(b.tagNumber) * sortFactor;
+      },
+      SortField.name: (Animal a, Animal b) {
+        if (a.name.isEmpty) return 1;
+        if (b.name.isEmpty) return -1;
+        return a.name.compareTo(b.name) * sortFactor;
+      },
+      SortField.age: (Animal a, Animal b) {
+        if (a.birthDate == null) return 1;
+        if (b.birthDate == null) return -1;
+        return -a.birthDate!.compareTo(b.birthDate!) * sortFactor;
+      }
+    };
+    return map[sortField];
+  }
+
+  int get sortFactor => ascendingSort ? 1 : -1;
 
   @override
   void initState() {
@@ -53,7 +97,7 @@ class _HerdeListState extends State<HerdeList> {
             return Container();
           }
           List<Animal> animals = herd.animals.values.toList();
-          animals.sort((a, b) => a.fullName.compareTo(b.fullName));
+          animals.sort(sortFunction);
           return Stack(
             children: [
               Scaffold(
@@ -70,30 +114,31 @@ class _HerdeListState extends State<HerdeList> {
                     Material(
                       elevation: 2,
                       child: Container(
-                        padding: const EdgeInsets.fromLTRB(16, 0, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TypeIcon(type: herd.type),
                             const Spacer(),
-                            IconButton(
+                            TextButton.icon(
                               icon: const Icon(MdiIcons.pencil),
                               onPressed: () {
                                 Navigator.push(
                                     context, MaterialPageRoute(builder: (context) => HerdSettings(herdId: herd.id)));
                               },
-                              tooltip: 'Edit Herd',
+                              label: const Text('Edit'),
                             ),
-                            IconButton(
+                            TextButton.icon(
                               icon: const Icon(MdiIcons.sort),
-                              onPressed: () {},
-                              tooltip: 'Sort Animals',
+                              onPressed: _selectSortField,
+                              label: Text(fieldName(sortField)),
                             ),
-                            IconButton(
-                              icon: const Icon(MdiIcons.filterVariant),
-                              onPressed: () {},
-                              tooltip: 'Filter Animals',
-                            ),
+                            // TODO: add filter feature
+                            // IconButton(
+                            //   icon: const Icon(MdiIcons.filterVariant),
+                            //   onPressed: () {},
+                            //   tooltip: 'Filter Animals',
+                            // ),
                           ],
                         ),
                       ),
@@ -123,6 +168,8 @@ class _HerdeListState extends State<HerdeList> {
                                         const SizedBox(width: 8),
                                         Text(animal.fullName, style: textTheme.headline6),
                                         const Spacer(),
+                                        if (sortField == SortField.age)
+                                          Text(animal.ageString, style: textTheme.headline6),
                                       ],
                                     ),
                                   ),
@@ -163,6 +210,83 @@ class _HerdeListState extends State<HerdeList> {
             ],
           );
         });
+  }
+
+  /* Allow the user to set the sort. */
+  _selectSortField() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        SortField? selectedField = sortField;
+        bool selectAscendingSort = ascendingSort;
+        return StatefulBuilder(builder: (context, innerSetState) {
+          return AlertDialog(
+            title: const Text('Sort'),
+            contentPadding: const EdgeInsets.fromLTRB(24, 0, 24, 0),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12),
+                      child: Text('Field:'),
+                    ),
+                    const Spacer(),
+                    DropdownButton(
+                      value: selectedField,
+                      onChanged: (SortField? value) {
+                        innerSetState(() => selectedField = value);
+                      },
+                      items: SortField.values
+                          .map((s) => DropdownMenuItem(
+                                value: s,
+                                child: Text(fieldName(s)),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12),
+                      child: Text('Ascending:'),
+                    ),
+                    const Spacer(),
+                    Switch(
+                      value: selectAscendingSort,
+                      onChanged: (value) {
+                        innerSetState(() => selectAscendingSort = value);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              TextButton(
+                child: const Text('Submit'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  if (selectedField != null) {
+                    setState(() {
+                      sortField = selectedField!;
+                      ascendingSort = selectAscendingSort;
+                    });
+                  }
+                },
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   /* Show the Animal preview bottom sheet. */
