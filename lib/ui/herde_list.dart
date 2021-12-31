@@ -48,7 +48,7 @@ class HerdeList extends StatefulWidget {
 
 class _HerdeListState extends State<HerdeList> {
   late ConfettiController _confettiController;
-  SortField sortField = SortField.tagNumber;
+  SortField sortField = SortField.age;
   bool ascendingSort = true;
 
   int Function(Animal, Animal) get sortFunction {
