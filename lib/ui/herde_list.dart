@@ -186,7 +186,10 @@ class _HerdeListState extends State<HerdeList> {
                   child: const Icon(MdiIcons.plus),
                   onPressed: () async {
                     Animal? animal = await Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => AnimalSettings(type: herd.type)));
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                AnimalSettings(animal: Animal(id: '', name: '', type: 'Goat', category: ''))));
                     if (animal != null) {
                       AnimalManager.addAnimal(herd, animal);
                       _confettiController.play();
@@ -307,10 +310,21 @@ class _HerdeListState extends State<HerdeList> {
                 ButtonBar(
                   children: [
                     OutlinedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-                        Navigator.push(
-                            context, MaterialPageRoute(builder: (context) => AnimalSettings(animal: animal)));
+                        Animal? newAnimal = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AnimalSettings(
+                                  animal: animal,
+                                  onDelete: () {
+                                    AnimalManager.removeAnimal(herd, animal);
+                                    Navigator.of(context).pop();
+                                  })),
+                        );
+                        if (newAnimal != null) {
+                          AnimalManager.updateAnimal(herd, newAnimal);
+                        }
                       },
                       icon: const Icon(MdiIcons.pencil),
                       label: const Text('Edit'),

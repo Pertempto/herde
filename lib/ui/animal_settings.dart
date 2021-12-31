@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:herde/data/animal.dart';
 import 'package:herde/data/data_store.dart';
-import 'package:herde/data/note.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'category_icon.dart';
@@ -11,43 +10,21 @@ import 'category_selector.dart';
 import 'list_item.dart';
 
 class AnimalSettings extends StatefulWidget {
-  final Animal? animal;
-  final String? type;
+  final Animal animal;
   final VoidCallback? onDelete;
 
-  const AnimalSettings({this.animal, this.type, this.onDelete, Key? key}) : super(key: key);
+  const AnimalSettings({required this.animal, this.onDelete, Key? key}) : super(key: key);
 
   @override
   State<AnimalSettings> createState() => _AnimalSettingsState();
 }
 
 class _AnimalSettingsState extends State<AnimalSettings> {
-  late Animal? animal = widget.animal;
-  String id = '';
-  int tagNumber = -1;
-  String name = '';
-  String type = '';
-  String category = '';
-  Map<String, Note> notes = {};
+  late Animal animal = widget.animal;
 
-  bool get isNew => animal == null;
+  bool get isNew => animal.id.isEmpty;
 
-  bool get isValid => (tagNumber != -1 || name.isNotEmpty) && category.isNotEmpty;
-
-  @override
-  void initState() {
-    super.initState();
-    if (animal == null) {
-      type = widget.type ?? 'Goat';
-    } else {
-      id = animal!.id;
-      tagNumber = animal!.tagNumber;
-      name = animal!.name;
-      type = animal!.type;
-      category = animal!.category;
-      notes = animal!.notes;
-    }
-  }
+  bool get isValid => (animal.tagNumber != -1 || animal.name.isNotEmpty) && animal.category.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -56,13 +33,18 @@ class _AnimalSettingsState extends State<AnimalSettings> {
         children: [
           ListItem(
               title: 'Tag Number',
-              value: tagNumber == -1 ? '' : tagNumber.toString(),
+              value: animal.tagNumber == -1 ? '' : animal.tagNumber.toString(),
               onTap: () => setState(() => _editTagNumber(context))),
-          ListItem(title: 'Name', value: name, onTap: () => _editName(context)),
+          ListItem(title: 'Name', value: animal.name, onTap: () => _editName(context)),
           ListItem(
             title: 'Category',
-            trailing: CategoryIcon(category: category, showLabel: true),
+            trailing: CategoryIcon(category: animal.category, showLabel: true),
             onTap: () => _editCategory(context),
+          ),
+          ListItem(
+            title: 'Birth Date',
+            value: animal.birthDateString,
+            onTap: () => _editBirthDate(context),
           ),
           if (!isNew)
             Padding(
@@ -81,14 +63,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
           if (isValid)
             IconButton(
               onPressed: () {
-                Navigator.of(context).pop(Animal(
-                  id: id,
-                  tagNumber: tagNumber,
-                  name: name,
-                  type: type,
-                  category: category,
-                  notes: notes,
-                ));
+                Navigator.of(context).pop(animal);
               },
               icon: const Icon(MdiIcons.check),
               tooltip: isNew ? 'Add Animal' : 'Save Animal',
@@ -102,7 +77,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
   /* Allow the user to edit the animal tag number. */
   _editTagNumber(BuildContext context) {
     TextEditingController textFieldController =
-        TextEditingController(text: tagNumber == -1 ? '' : tagNumber.toString());
+        TextEditingController(text: animal.tagNumber == -1 ? '' : animal.tagNumber.toString());
     showDialog(
       context: context,
       builder: (context) {
@@ -131,12 +106,12 @@ class _AnimalSettingsState extends State<AnimalSettings> {
               child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            if (name.isNotEmpty)
+            if (animal.name.isNotEmpty)
               TextButton(
                 child: const Text('None'),
                 onPressed: () {
                   setState(() {
-                    tagNumber = -1;
+                    animal = animal.copyWith(tagNumber: -1);
                     Navigator.pop(context);
                   });
                 },
@@ -147,11 +122,11 @@ class _AnimalSettingsState extends State<AnimalSettings> {
                 String value = textFieldController.value.text.trim();
                 int newTagNumber = value.isEmpty ? -1 : int.parse(value);
                 // the animal must have a tag number or a name, they can't both be empty
-                if (newTagNumber == -1 && name.isEmpty) {
+                if (newTagNumber == -1 && animal.name.isEmpty) {
                   return;
                 }
                 setState(() {
-                  tagNumber = newTagNumber;
+                  animal = animal.copyWith(tagNumber: newTagNumber);
                   Navigator.pop(context);
                 });
               },
@@ -164,7 +139,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
 
   /* Allow the user to edit the animal name. */
   _editName(BuildContext context) {
-    TextEditingController textFieldController = TextEditingController(text: name);
+    TextEditingController textFieldController = TextEditingController(text: animal.name);
     showDialog(
       context: context,
       builder: (context) {
@@ -188,12 +163,12 @@ class _AnimalSettingsState extends State<AnimalSettings> {
               child: const Text('Cancel'),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            if (tagNumber != -1)
+            if (animal.tagNumber != -1)
               TextButton(
                 child: const Text('None'),
                 onPressed: () {
                   setState(() {
-                    name = '';
+                    animal = animal.copyWith(name: '');
                     Navigator.pop(context);
                   });
                 },
@@ -203,11 +178,11 @@ class _AnimalSettingsState extends State<AnimalSettings> {
               onPressed: () {
                 String newName = textFieldController.value.text.trim();
                 // the animal must have a tag number or a name, they can't both be empty
-                if (newName.isEmpty && tagNumber == -1) {
+                if (newName.isEmpty && animal.tagNumber == -1) {
                   return;
                 }
                 setState(() {
-                  name = newName;
+                  animal = animal.copyWith(name: newName);
                   Navigator.pop(context);
                 });
               },
@@ -222,13 +197,28 @@ class _AnimalSettingsState extends State<AnimalSettings> {
   _editCategory(BuildContext context) async {
     String? newCategory = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CategorySelector(type: type)),
+      MaterialPageRoute(builder: (context) => CategorySelector(type: animal.type)),
     );
     if (newCategory != null) {
       setState(() {
-        category = newCategory;
+        animal = animal.copyWith(category: newCategory);
       });
     }
+  }
+
+  /* Allow the user to edit the birth date of the animal. */
+  _editBirthDate(BuildContext context) {
+    showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+    ).then((value) {
+      setState(() {
+        animal = animal.copyWith(birthDate: value);
+      });
+    });
   }
 
   /* Allow the user to delete the animal. */

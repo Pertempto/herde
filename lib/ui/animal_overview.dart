@@ -31,8 +31,7 @@ class AnimalOverview extends StatelessWidget {
             CategoryIcon(category: animal.category, showLabel: true),
           ];
           if (animal.birthDate != null) {
-            String birthString = DateFormat.yMd().format(animal.birthDate!);
-            children.add(Text('Born: $birthString (${animal.ageString})', style: textStyle));
+            children.add(Text('Born: ${animal.birthDateString} (${animal.ageString})', style: textStyle));
           }
         }
         return Column(crossAxisAlignment: CrossAxisAlignment.start, children: children);

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:intl/intl.dart';
 
 import 'note.dart';
 
@@ -30,6 +31,13 @@ class Animal with _$Animal {
     } else {
       return tagNumber.toString() + ' - ' + name;
     }
+  }
+
+  String get birthDateString {
+    if (birthDate == null) {
+      return '';
+    }
+    return DateFormat.yMd().format(birthDate!);
   }
 
   String get ageString {
