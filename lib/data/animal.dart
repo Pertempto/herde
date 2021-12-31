@@ -16,6 +16,7 @@ class Animal with _$Animal {
     required String name,
     required String type,
     required String category,
+    DateTime? birthDate,
     @Default({}) Map<String, Note> notes,
   }) = _Animal;
 

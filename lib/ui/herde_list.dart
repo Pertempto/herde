@@ -10,7 +10,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../data/animal.dart';
 import '../data/data_store.dart';
 import '../data/herde_user.dart';
-import 'animal.dart';
+import 'animal_details.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
@@ -110,7 +110,7 @@ class _HerdeListState extends State<HerdeList> {
                                 onLongPress: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)),
+                                      builder: (context) => AnimalDetails(animalId: animal.id, herdId: herd.id)),
                                 ),
                                 child: Card(
                                   child: Container(
@@ -197,7 +197,7 @@ class _HerdeListState extends State<HerdeList> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AnimalScreen(animalId: animal.id, herdId: herd.id)));
+                                builder: (context) => AnimalDetails(animalId: animal.id, herdId: herd.id)));
                       },
                       icon: const Icon(MdiIcons.eye),
                       label: const Text('View'),

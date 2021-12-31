@@ -10,17 +10,17 @@ import '../data/herd.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 
-class AnimalScreen extends StatefulWidget {
+class AnimalDetails extends StatefulWidget {
   final String animalId;
   final String herdId;
 
-  const AnimalScreen({required this.animalId, required this.herdId, Key? key}) : super(key: key);
+  const AnimalDetails({required this.animalId, required this.herdId, Key? key}) : super(key: key);
 
   @override
-  State<AnimalScreen> createState() => _AnimalScreenState();
+  State<AnimalDetails> createState() => _AnimalDetailsState();
 }
 
-class _AnimalScreenState extends State<AnimalScreen> {
+class _AnimalDetailsState extends State<AnimalDetails> {
   @override
   Widget build(BuildContext context) {
     TextTheme textTheme = Theme.of(context).textTheme;
@@ -35,6 +35,7 @@ class _AnimalScreenState extends State<AnimalScreen> {
             notes.sort((a, b) => -a.createdTimestamp.compareTo(b.createdTimestamp));
             children = [
               AnimalOverview(animalId: widget.animalId, herdId: widget.herdId),
+              const SizedBox(height: 12),
               const Divider(),
               Row(
                 children: [
