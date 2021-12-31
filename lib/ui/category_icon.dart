@@ -7,7 +7,7 @@ class CategoryIcon extends StatelessWidget {
     'Buck': MdiIcons.multiplication,
     'Wether': MdiIcons.minus,
     'Doe': MdiIcons.plus,
-    'Kid': MdiIcons.slashForward,
+    'Kid': MdiIcons.circleSmall,
     'Bull': MdiIcons.multiplication,
     'Steer': MdiIcons.minus,
     'Cow': MdiIcons.plusCircleOutline,

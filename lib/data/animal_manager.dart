@@ -49,6 +49,27 @@ class AnimalManager {
     }
   }
 
+  /* Edit a note on an animal. */
+  static editNote(Herd herd, Animal animal, String noteId, String newContent) {
+    Map<String, Note> newNotes = Map.from(animal.notes);
+    if (newNotes.containsKey(noteId)) {
+      newNotes[noteId] = newNotes[noteId]!.copyWith(
+        editedTimestamp: DateTime.now(),
+        content: newContent,
+      );
+      updateAnimal(herd, animal.copyWith(notes: newNotes));
+    }
+  }
+
+  /* Delete a note on an animal. */
+  static deleteNote(Herd herd, Animal animal, String noteId) {
+    Map<String, Note> newNotes = Map.from(animal.notes);
+    if (newNotes.containsKey(noteId)) {
+      newNotes.remove(noteId);
+      updateAnimal(herd, animal.copyWith(notes: newNotes));
+    }
+  }
+
   /* Generate a new unique animal id for the herd. */
   static String generateAnimalId(Herd herd) {
     String id = generateId();

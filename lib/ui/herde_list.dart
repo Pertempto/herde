@@ -51,10 +51,12 @@ class _HerdeListState extends State<HerdeList> {
             DataStore.setCurrentHerd('');
             return Container();
           }
+          List<Animal> animals = herd.animals.values.toList();
+          animals.sort((a, b) => a.fullName.compareTo(b.fullName));
           return Stack(
             children: [
               Scaffold(
-                appBar: AppBar(title: const Text('Herde'), actions: [
+                appBar: AppBar(title: Text(herd.name), actions: [
                   IconButton(
                     icon: const Icon(MdiIcons.cog),
                     onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings())),
@@ -71,8 +73,6 @@ class _HerdeListState extends State<HerdeList> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Text(herd.name, style: textTheme.headline6),
-                            const SizedBox(width: 16),
                             TypeIcon(type: herd.type),
                             const Spacer(),
                             IconButton(
@@ -102,7 +102,7 @@ class _HerdeListState extends State<HerdeList> {
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(8, 8, 8, 80),
                           child: Column(
-                            children: herd.animals.values.map((Animal animal) {
+                            children: animals.map((Animal animal) {
                               return InkWell(
                                 borderRadius: BorderRadius.circular(8),
                                 onTap: () => _goToAnimal(animal: animal, herd: herd),
