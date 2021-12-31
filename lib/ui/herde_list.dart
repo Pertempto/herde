@@ -319,7 +319,6 @@ class _HerdeListState extends State<HerdeList> {
                                   animal: animal,
                                   onDelete: () {
                                     AnimalManager.removeAnimal(herd, animal);
-                                    Navigator.of(context).pop();
                                   })),
                         );
                         if (newAnimal != null) {
