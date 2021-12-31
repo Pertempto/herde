@@ -3,12 +3,12 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:herde/data/animal_manager.dart';
-import 'package:herde/data/herd.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/animal.dart';
+import '../data/animal_manager.dart';
 import '../data/data_store.dart';
+import '../data/herd.dart';
 import '../data/herde_user.dart';
 import 'animal_details.dart';
 import 'animal_overview.dart';
@@ -21,8 +21,10 @@ import 'type_icon.dart';
 enum SortField {
   tagNumber,
   name,
-  age,
   category,
+  age,
+  father,
+  mother,
 }
 
 String fieldName(SortField field) {
@@ -35,6 +37,10 @@ String fieldName(SortField field) {
       return 'Age';
     case SortField.category:
       return 'Category';
+    case SortField.father:
+      return 'Father';
+    case SortField.mother:
+      return 'Mother';
     default:
       return 'Unknown';
   }
@@ -54,7 +60,7 @@ class _HerdeListState extends State<HerdeList> {
   SortField sortField = SortField.age;
   bool ascendingSort = true;
 
-  int Function(Animal, Animal) get sortFunction {
+  int Function(Animal, Animal) getSortFunction(Herd herd) {
     Map map = {
       SortField.tagNumber: (Animal a, Animal b) {
         if (a.tagNumber == -1) return 1;
@@ -73,6 +79,20 @@ class _HerdeListState extends State<HerdeList> {
       },
       SortField.category: (Animal a, Animal b) {
         return a.category.sortIndex.compareTo(b.category.sortIndex) * sortFactor;
+      },
+      SortField.father: (Animal a, Animal b) {
+        if (herd.animals[a.fatherId] == null) return 1;
+        if (herd.animals[b.fatherId] == null) return -1;
+        Animal aFather = herd.animals[a.fatherId]!;
+        Animal bFather = herd.animals[b.fatherId]!;
+        return aFather.fullName.compareTo(bFather.fullName) * sortFactor;
+      },
+      SortField.mother: (Animal a, Animal b) {
+        if (herd.animals[a.motherId] == null) return 1;
+        if (herd.animals[b.motherId] == null) return -1;
+        Animal aMother = herd.animals[a.motherId]!;
+        Animal bMother = herd.animals[b.motherId]!;
+        return aMother.fullName.compareTo(bMother.fullName) * sortFactor;
       },
     };
     return map[sortField];
@@ -103,7 +123,7 @@ class _HerdeListState extends State<HerdeList> {
             return Container();
           }
           List<Animal> animals = herd.animals.values.toList();
-          animals.sort(sortFunction);
+          animals.sort(getSortFunction(herd));
           return Stack(
             children: [
               Scaffold(
@@ -178,6 +198,10 @@ class _HerdeListState extends State<HerdeList> {
                                           Text(animal.ageString, style: textTheme.headline6),
                                         if (sortField == SortField.category)
                                           Text(animal.categoryName, style: textTheme.headline6),
+                                        if (sortField == SortField.father && herd.animals[animal.fatherId] != null)
+                                          Text(herd.animals[animal.fatherId]!.fullName, style: textTheme.headline6),
+                                        if (sortField == SortField.mother && herd.animals[animal.motherId] != null)
+                                          Text(herd.animals[animal.motherId]!.fullName, style: textTheme.headline6),
                                       ],
                                     ),
                                   ),
@@ -196,8 +220,10 @@ class _HerdeListState extends State<HerdeList> {
                     Animal? animal = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                AnimalSettings(animal: Animal(id: '', name: '', typeName: herd.type))));
+                            builder: (context) => AnimalSettings(
+                                  animal: Animal(id: '', name: '', typeName: herd.type),
+                                  herdId: herd.id,
+                                )));
                     if (animal != null) {
                       AnimalManager.addAnimal(herd, animal);
                       _confettiController.play();
@@ -325,6 +351,7 @@ class _HerdeListState extends State<HerdeList> {
                           MaterialPageRoute(
                               builder: (context) => AnimalSettings(
                                   animal: animal,
+                                  herdId: herd.id,
                                   onDelete: () {
                                     AnimalManager.removeAnimal(herd, animal);
                                   })),

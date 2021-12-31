@@ -87,7 +87,7 @@ class DataStore {
   }
 
   static FirestoreQueryBuilder animalWidget(
-      {required String herdId, required String animalId, required Function(Herd?, Animal?) builder}) {
+      {required String herdId, required String? animalId, required Function(Herd?, Animal?) builder}) {
     return firestoreWidget(
       query: herdQuery(herdId),
       builder: (data) {

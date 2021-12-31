@@ -22,6 +22,8 @@ class Animal with _$Animal {
     // ignore: invalid_annotation_target
     @JsonKey(name: 'category') @Default('') String categoryName,
     DateTime? birthDate,
+    String? fatherId,
+    String? motherId,
     @Default({}) Map<String, Note> notes,
   }) = _Animal;
 

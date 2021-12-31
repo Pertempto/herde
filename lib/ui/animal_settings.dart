@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:herde/data/animal.dart';
-import 'package:herde/data/data_store.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
+import '../data/animal.dart';
+import '../data/category.dart';
+import '../data/data_store.dart';
+import '../data/herd.dart';
 import 'category_icon.dart';
 import 'category_selector.dart';
 import 'list_item.dart';
+import 'parent_selector.dart';
 
 class AnimalSettings extends StatefulWidget {
   final Animal animal;
+  final String herdId;
   final VoidCallback? onDelete;
 
-  const AnimalSettings({required this.animal, this.onDelete, Key? key}) : super(key: key);
+  const AnimalSettings({required this.animal, required this.herdId, this.onDelete, Key? key}) : super(key: key);
 
   @override
   State<AnimalSettings> createState() => _AnimalSettingsState();
@@ -46,6 +50,26 @@ class _AnimalSettingsState extends State<AnimalSettings> {
             value: animal.birthDateString,
             onTap: () => _editBirthDate(context),
           ),
+          DataStore.animalWidget(
+              herdId: widget.herdId,
+              animalId: animal.fatherId,
+              builder: (herd, animal) {
+                return ListItem(
+                  title: 'Father',
+                  value: animal?.fullName ?? '',
+                  onTap: () => _editParent(Parent.father, herd!, context),
+                );
+              }),
+          DataStore.animalWidget(
+              herdId: widget.herdId,
+              animalId: animal.motherId,
+              builder: (herd, animal) {
+                return ListItem(
+                  title: 'Mother',
+                  value: animal?.fullName ?? '',
+                  onTap: () => _editParent(Parent.mother, herd!, context),
+                );
+              }),
           if (!isNew)
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -219,6 +243,23 @@ class _AnimalSettingsState extends State<AnimalSettings> {
         animal = animal.copyWith(birthDate: value);
       });
     });
+  }
+
+  /* Allow the user to edit a parent of the animal. */
+  _editParent(Parent parent, Herd herd, BuildContext context) async {
+    String? newParentId = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ParentSelector(parent: parent, herd: herd)),
+    );
+    if (newParentId != null) {
+      setState(() {
+        if (parent == Parent.father) {
+          animal = animal.copyWith(fatherId: newParentId);
+        } else if (parent == Parent.mother) {
+          animal = animal.copyWith(motherId: newParentId);
+        }
+      });
+    }
   }
 
   /* Allow the user to delete the animal. */

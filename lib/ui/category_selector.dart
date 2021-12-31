@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:herde/data/category.dart';
 
+import '../data/category.dart';
 import 'category_icon.dart';
 import 'list_item.dart';
 

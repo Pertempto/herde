@@ -22,7 +22,7 @@ class ListItem extends StatelessWidget {
       trailing: trailing ?? Text(value ?? '', style: trailingStyle),
       subtitle: subtitle == null ? null : Text(subtitle!, style: subtitleStyle),
       onTap: onTap,
-      dense: false,
+      dense: true,
     );
   }
 }

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:herde/data/animal_manager.dart';
-import 'package:herde/data/data_store.dart';
-import 'package:herde/data/note.dart';
 import 'package:intl/intl.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/animal.dart';
+import '../data/animal_manager.dart';
+import '../data/data_store.dart';
 import '../data/herd.dart';
+import '../data/note.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 
@@ -104,6 +104,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
       MaterialPageRoute(
           builder: (context) => AnimalSettings(
               animal: animal,
+              herdId: herd.id,
               onDelete: () {
                 AnimalManager.removeAnimal(herd, animal);
                 Navigator.of(context).pop();

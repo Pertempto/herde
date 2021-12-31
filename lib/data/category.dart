@@ -4,6 +4,8 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 
 part 'category.freezed.dart';
 
+enum Parent { father, mother }
+
 enum Gender {
   male,
   female,
