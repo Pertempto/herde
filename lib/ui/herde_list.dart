@@ -16,6 +16,7 @@ import 'animal_details.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
+import 'family_tree.dart';
 import 'herd_settings.dart';
 import 'parent_selector.dart';
 import 'settings.dart';
@@ -91,6 +92,14 @@ class _HerdeListState extends State<HerdeList> {
                                     context, MaterialPageRoute(builder: (context) => HerdSettings(herdId: herd.id)));
                               },
                               label: const Text('Edit'),
+                            ),
+                            TextButton.icon(
+                              icon: const Icon(MdiIcons.familyTree),
+                              onPressed: () {
+                                Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => FamilyTree(herdId: herd.id)));
+                              },
+                              label: const Text('Family Tree'),
                             ),
                             TextButton.icon(
                               icon: const Icon(MdiIcons.sort),
@@ -288,7 +297,16 @@ class _HerdeListState extends State<HerdeList> {
             Widget filterValueWidget = Container();
             VoidCallback? editFilterValue;
 
-            if (filterField == Field.father) {
+            if (filterField == Field.category) {
+              filterValueWidget = DataStore.animalWidget(
+                  herdId: herd.id,
+                  animalId: filterValue,
+                  builder: (herd, animal) {
+                    return Text(animal?.fullName ?? '',
+                        style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
+                  });
+              editFilterValue = () => _editParent(Parent.father);
+            } else if (filterField == Field.father) {
               filterValueWidget = DataStore.animalWidget(
                   herdId: herd.id,
                   animalId: filterValue,

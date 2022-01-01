@@ -25,7 +25,7 @@ class AnimalOverview extends StatelessWidget {
 
         if (animal != null) {
           children = [
-            Text(animal.fullName, style: textTheme.headline4),
+            Text(animal.fullName, style: textTheme.headline5),
             const SizedBox(height: 12),
             TypeIcon(type: animal.typeName, showLabel: true),
             CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName, showLabel: true),

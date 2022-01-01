@@ -49,6 +49,7 @@ class SortFilter {
 
   static final Map<Field, Function(String?)> _filterFunctions = {
     Field.none: (_) => (Animal a) => true,
+    Field.category: (categoryName) => (Animal a) => a.categoryName == (categoryName ?? ''),
     Field.father: (fatherId) => (Animal a) => a.fatherId == fatherId,
     Field.mother: (motherId) => (Animal a) => a.motherId == motherId,
   };
@@ -99,6 +100,8 @@ class SortFilter {
   String getFilterString(Herd herd) {
     if (filterField == Field.none) {
       return 'Filter';
+    } else if (filterField == Field.category) {
+      return '"Category is $filterValue"';
     } else if (filterField == Field.father) {
       Animal? father = herd.animals[filterValue];
       if (father == null) {
