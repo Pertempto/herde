@@ -7,9 +7,15 @@ class ListItem extends StatelessWidget {
   final String? value;
   final String? subtitle;
   final VoidCallback? onTap;
+  final bool thin;
 
   const ListItem({required this.title, this.trailing, this.value, this.subtitle, this.onTap, Key? key})
-      : super(key: key);
+      : thin = false,
+        super(key: key);
+
+  const ListItem.thin({required this.title, this.trailing, this.value, this.subtitle, this.onTap, Key? key})
+      : thin = true,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +29,7 @@ class ListItem extends StatelessWidget {
       subtitle: subtitle == null ? null : Text(subtitle!, style: subtitleStyle),
       onTap: onTap,
       dense: true,
+      visualDensity: thin ? VisualDensity.compact : VisualDensity.standard,
     );
   }
 }

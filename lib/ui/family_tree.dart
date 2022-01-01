@@ -4,6 +4,7 @@ import 'package:graphview/GraphView.dart';
 
 import '../data/animal.dart';
 import '../data/data_store.dart';
+import 'category_icon.dart';
 
 class FamilyTree extends StatefulWidget {
   final String herdId;
@@ -25,8 +26,8 @@ class _FamilyTreeState extends State<FamilyTree> {
     builder
       ..iterations = (50)
       ..nodeSeparation = (50)
-      ..levelSeparation = (50)
-      ..orientation = SugiyamaConfiguration.ORIENTATION_BOTTOM_TOP;
+      ..levelSeparation = (80)
+      ..orientation = SugiyamaConfiguration.ORIENTATION_LEFT_RIGHT;
   }
 
   @override
@@ -38,18 +39,50 @@ class _FamilyTreeState extends State<FamilyTree> {
             Navigator.of(context).pop();
           }
           if (graph.nodes.isEmpty) {
+            Node unknownNode = Node.Id(null);
             Map<String, Node> nodes = {};
+            Map<String, Node> parentNodes = {};
             for (Animal animal in herd!.animals.values) {
-              nodes[animal.id] = Node.Id(animal.fullName);
+              nodes[animal.id] = Node.Id(animal);
+              parentNodes[(animal.fatherId ?? '') + '+' + (animal.motherId ?? '')];
             }
-            for (Animal animal in herd.animals.values) {
-              // graph.addNode(nodes[animal.id]!);
+            List<Animal> animalListByAge = herd.animals.values.toList();
+            // Sort the animals by oldest to youngest.
+            animalListByAge.sort((Animal a, Animal b) {
+              if (a.birthDate == null) return 1;
+              if (b.birthDate == null) return -1;
+              return a.birthDate!.compareTo(b.birthDate!);
+            });
+            List<Animal> animalList = [];
+            addAnimal(Animal animal) {
+              animalListByAge.remove(animal);
+              if (!animalList.contains(animal)) {
+                animalList.add(animal);
+                for (Animal child in herd.getChildren(animal)) {
+                  addAnimal(child);
+                }
+              }
+            }
+
+            while (animalListByAge.isNotEmpty) {
+              addAnimal(animalListByAge.first);
+            }
+            for (Animal animal in animalList) {
               if (animal.fatherId != null) {
                 graph.addEdge(
                   nodes[animal.id]!,
                   nodes[animal.fatherId]!,
                   paint: Paint()
                     ..color = Colors.blue
+                    ..strokeWidth = 1
+                    ..style = PaintingStyle.stroke,
+                );
+              } else {
+                graph.addEdge(
+                  nodes[animal.id]!,
+                  unknownNode,
+                  paint: Paint()
+                    ..color = Colors.transparent
                     ..strokeWidth = 1
                     ..style = PaintingStyle.stroke,
                 );
@@ -60,6 +93,15 @@ class _FamilyTreeState extends State<FamilyTree> {
                   nodes[animal.motherId]!,
                   paint: Paint()
                     ..color = Colors.pink
+                    ..strokeWidth = 1
+                    ..style = PaintingStyle.stroke,
+                );
+              } else {
+                graph.addEdge(
+                  nodes[animal.id]!,
+                  unknownNode,
+                  paint: Paint()
+                    ..color = Colors.transparent
                     ..strokeWidth = 1
                     ..style = PaintingStyle.stroke,
                 );
@@ -77,18 +119,32 @@ class _FamilyTreeState extends State<FamilyTree> {
                   graph: graph,
                   algorithm: SugiyamaAlgorithm(builder),
                   builder: (Node node) {
-                    return rectangleWidget(node.key!.value);
+                    return nodeWidget(node.key!.value);
                   },
                 )),
           );
         });
   }
 
-  Widget rectangleWidget(String? a) {
+  Widget nodeWidget(Animal? a) {
+    if (a == null) {
+      return Container();
+    }
     return Card(
       child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Text(a ?? 'BLANK'),
+        padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                CategoryIcon(typeName: a.typeName, categoryName: a.categoryName),
+                const SizedBox(width: 8),
+                Text(a.fullName),
+              ],
+            ),
+            if (a.birthDate != null) Text('Age: ${a.ageString}')
+          ],
+        ),
       ),
     );
   }

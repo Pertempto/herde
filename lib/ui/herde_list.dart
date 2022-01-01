@@ -121,6 +121,18 @@ class _HerdeListState extends State<HerdeList> {
                           padding: const EdgeInsets.fromLTRB(8, 8, 8, 80),
                           child: Column(
                             children: animals.map((Animal animal) {
+                              List<String> parents = [];
+                              if (herd.animals[animal.fatherId] != null) {
+                                parents.add(herd.animals[animal.fatherId]!.fullName);
+                              } else {
+                                parents.add('Unknown');
+                              }
+                              if (herd.animals[animal.motherId] != null) {
+                                parents.add(herd.animals[animal.motherId]!.fullName);
+                              } else {
+                                parents.add('Unknown');
+                              }
+                              String parentString = parents.join(' & ');
                               return InkWell(
                                 borderRadius: BorderRadius.circular(8),
                                 onTap: () => _previewAnimal(animal: animal, herd: herd),
@@ -132,24 +144,26 @@ class _HerdeListState extends State<HerdeList> {
                                 child: Card(
                                   child: Container(
                                     width: double.infinity,
-                                    padding: const EdgeInsets.all(16),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.max,
+                                    padding: const EdgeInsets.all(12),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName),
-                                        const SizedBox(width: 8),
-                                        Text(animal.fullName, style: textTheme.headline6),
-                                        const Spacer(),
-                                        if (sortFilter.sortField == Field.age)
-                                          Text(animal.ageString, style: textTheme.headline6),
-                                        if (sortFilter.sortField == Field.category)
-                                          Text(animal.categoryName, style: textTheme.headline6),
-                                        if (sortFilter.sortField == Field.father &&
-                                            herd.animals[animal.fatherId] != null)
-                                          Text(herd.animals[animal.fatherId]!.fullName, style: textTheme.headline6),
-                                        if (sortFilter.sortField == Field.mother &&
-                                            herd.animals[animal.motherId] != null)
-                                          Text(herd.animals[animal.motherId]!.fullName, style: textTheme.headline6),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName),
+                                            const SizedBox(width: 8),
+                                            Text(animal.fullName, style: textTheme.headline5),
+                                            const Spacer(),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                if (parentString.isNotEmpty) Text('Parents: $parentString'),
+                                                if (animal.birthDate != null) Text('Age: ${animal.ageString}')
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -416,7 +430,6 @@ class _HerdeListState extends State<HerdeList> {
         builder: (context) {
           return Container(
             color: colorScheme.surface,
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,

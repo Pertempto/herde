@@ -39,7 +39,10 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               const Divider(),
               Row(
                 children: [
-                  Text('Notes', style: textTheme.headline6),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: Text('Notes', style: textTheme.headline6),
+                  ),
                   const Spacer(),
                   IconButton(icon: const Icon(MdiIcons.plus), onPressed: () => _addNote(animal, herd!)),
                 ],
@@ -50,6 +53,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                 bool wasEdited = note.editedTimestamp != note.createdTimestamp;
                 return Builder(builder: (context) {
                   return Card(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(8),
                       onTap: () => _noteActions(note, animal, herd!, context),
@@ -89,10 +93,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
               ],
             ),
             body: SingleChildScrollView(
-                child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
-            )),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)),
           );
         });
   }

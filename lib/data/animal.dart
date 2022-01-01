@@ -12,7 +12,6 @@ part 'animal.g.dart';
 class Animal with _$Animal {
   const Animal._();
 
-  // @AnimalConverter()
   factory Animal({
     required String id,
     @Default(-1) int tagNumber,
@@ -30,12 +29,10 @@ class Animal with _$Animal {
   factory Animal.fromJson(Map<String, dynamic> json) => _$AnimalFromJson(json);
 
   String get fullName {
-    if (tagNumber == -1) {
+    if (name != '') {
       return name;
-    } else if (name == '') {
-      return tagNumber.toString();
     } else {
-      return tagNumber.toString() + ' - ' + name;
+      return '#$tagNumber';
     }
   }
 
