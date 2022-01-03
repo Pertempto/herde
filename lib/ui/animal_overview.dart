@@ -29,6 +29,8 @@ class AnimalOverview extends StatelessWidget {
               child: Text(animal.fullName, style: textTheme.headline4),
             ),
             const SizedBox(height: 12),
+            if (animal.tagNumber != -1)
+              ListItem.thin(title: 'Tag Number', value: animal.tagNumber.toString()),
             ListItem.thin(title: 'Type', trailing: TypeIcon(type: animal.typeName, showLabel: true)),
             ListItem.thin(
               title: 'Category',

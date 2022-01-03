@@ -134,7 +134,7 @@ class _HerdeListState extends State<HerdeList> {
                               } else {
                                 parents.add('');
                               }
-                              String parentString = 'Unknown';
+                              String parentString = 'Parents: Unknown';
                               if (parents[0].isNotEmpty && parents[1].isNotEmpty) {
                                 parentString = 'Parents: ' + parents.join(' & ');
                               } else if (parents[0].isNotEmpty) {
@@ -167,7 +167,7 @@ class _HerdeListState extends State<HerdeList> {
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
-                                                if (parentString.isNotEmpty) Text('$parentString'),
+                                                Text(parentString),
                                                 if (animal.birthDate != null) Text('Age: ${animal.ageString}')
                                               ],
                                             ),
