@@ -35,6 +35,11 @@ class _AnimalSettingsState extends State<AnimalSettings> {
     return DataStore.userWidget(builder: (user) {
       Widget body = ListView(
         children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            width: double.infinity,
+            child: const Text('Tap to edit, press and hold to clear.', textAlign: TextAlign.center),
+          ),
           ListItem(
               title: 'Tag Number',
               value: animal.tagNumber == -1 ? '' : animal.tagNumber.toString(),

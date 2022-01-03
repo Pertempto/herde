@@ -42,10 +42,14 @@ Goat by Laymik from NounProject.com
 Cow by Laymik from NounProject.com
 Egyptian Cat by Laymik from NounProject.com
 ''';
+    const String verse = '''
+He blesseth them also, so that they are multiplied greatly; and suffereth not their cattle to decrease.
+''';
     Widget body = ListView(children: [
       const ListItem(title: 'Developed By', value: 'Addison Emig'),
       ListItem(title: 'App Version', value: appVersion, onTap: _easterEgg),
       const ListItem(title: 'Icon Credits', subtitle: iconCredits),
+      const ListItem(title: 'Psalm 107:38', subtitle: verse),
     ]);
     return Stack(
       children: [

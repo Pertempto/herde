@@ -41,10 +41,8 @@ class _FamilyTreeState extends State<FamilyTree> {
           if (graph.nodes.isEmpty) {
             Node unknownNode = Node.Id(null);
             Map<String, Node> nodes = {};
-            Map<String, Node> parentNodes = {};
             for (Animal animal in herd!.animals.values) {
               nodes[animal.id] = Node.Id(animal);
-              parentNodes[(animal.fatherId ?? '') + '+' + (animal.motherId ?? '')];
             }
             List<Animal> animalListByAge = herd.animals.values.toList();
             // Sort the animals by oldest to youngest.
@@ -53,19 +51,24 @@ class _FamilyTreeState extends State<FamilyTree> {
               if (b.birthDate == null) return -1;
               return a.birthDate!.compareTo(b.birthDate!);
             });
-            List<Animal> animalList = [];
-            addAnimal(Animal animal) {
-              animalListByAge.remove(animal);
-              if (!animalList.contains(animal)) {
-                animalList.add(animal);
+            List<List<Animal>> generations = [];
+            addAnimal(Animal animal, int generation) {
+              while (generation >= generations.length) {
+                generations.add([]);
+              }
+              if (animalListByAge.remove(animal)) {
+                generations[generation].add(animal);
                 for (Animal child in herd.getChildren(animal)) {
-                  addAnimal(child);
+                  addAnimal(child, generation + 1);
                 }
               }
             }
-
             while (animalListByAge.isNotEmpty) {
-              addAnimal(animalListByAge.first);
+              addAnimal(animalListByAge.first, 0);
+            }
+            List<Animal> animalList = [];
+            for (List<Animal> generation in generations) {
+              animalList.addAll(generation);
             }
             for (Animal animal in animalList) {
               if (animal.fatherId != null) {
@@ -112,9 +115,9 @@ class _FamilyTreeState extends State<FamilyTree> {
             appBar: AppBar(title: const Text('Family Tree')),
             body: InteractiveViewer(
                 constrained: false,
-                boundaryMargin: EdgeInsets.all(1000),
-                minScale: 0.00001,
-                maxScale: 100,
+                boundaryMargin: const EdgeInsets.all(double.infinity),
+                minScale: 0.5,
+                maxScale: 2,
                 child: GraphView(
                   graph: graph,
                   algorithm: SugiyamaAlgorithm(builder),

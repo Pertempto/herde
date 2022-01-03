@@ -16,6 +16,7 @@ import 'animal_details.dart';
 import 'animal_overview.dart';
 import 'animal_settings.dart';
 import 'category_icon.dart';
+import 'category_selector.dart';
 import 'family_tree.dart';
 import 'herd_settings.dart';
 import 'parent_selector.dart';
@@ -302,9 +303,7 @@ class _HerdeListState extends State<HerdeList> {
                 MaterialPageRoute(builder: (context) => ParentSelector(parent: parent, herd: herd)),
               );
               if (newParentId != null) {
-                innerSetState(() {
-                  filterValue = newParentId;
-                });
+                innerSetState(() => filterValue = newParentId);
               }
             }
 
@@ -312,14 +311,20 @@ class _HerdeListState extends State<HerdeList> {
             VoidCallback? editFilterValue;
 
             if (filterField == Field.category) {
-              filterValueWidget = DataStore.animalWidget(
-                  herdId: herd.id,
-                  animalId: filterValue,
-                  builder: (herd, animal) {
-                    return Text(animal?.fullName ?? '',
-                        style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
-                  });
-              editFilterValue = () => _editParent(Parent.father);
+              filterValueWidget = CategoryIcon(
+                typeName: herd.type,
+                categoryName: filterValue ?? '',
+                showLabel: true,
+              );
+              editFilterValue = () async {
+                String? newCategoryName = await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CategorySelector(typeName: herd.type)),
+                );
+                if (newCategoryName != null) {
+                  innerSetState(() => filterValue = newCategoryName);
+                }
+              };
             } else if (filterField == Field.father) {
               filterValueWidget = DataStore.animalWidget(
                   herdId: herd.id,

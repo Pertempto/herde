@@ -7,14 +7,29 @@ class ListItem extends StatelessWidget {
   final String? value;
   final String? subtitle;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final bool thin;
 
-  const ListItem({required this.title, this.trailing, this.value, this.subtitle, this.onTap, Key? key})
-      : thin = false,
+  const ListItem({
+    required this.title,
+    this.trailing,
+    this.value,
+    this.subtitle,
+    this.onTap,
+    this.onLongPress,
+    Key? key,
+  })  : thin = false,
         super(key: key);
 
-  const ListItem.thin({required this.title, this.trailing, this.value, this.subtitle, this.onTap, Key? key})
-      : thin = true,
+  const ListItem.thin({
+    required this.title,
+    this.trailing,
+    this.value,
+    this.subtitle,
+    this.onTap,
+    this.onLongPress,
+    Key? key,
+  })  : thin = true,
         super(key: key);
 
   @override
@@ -28,6 +43,7 @@ class ListItem extends StatelessWidget {
       trailing: trailing ?? Text(value ?? '', style: trailingStyle),
       subtitle: subtitle == null ? null : Text(subtitle!, style: subtitleStyle),
       onTap: onTap,
+      onLongPress: onLongPress,
       dense: true,
       visualDensity: thin ? VisualDensity.compact : VisualDensity.standard,
     );

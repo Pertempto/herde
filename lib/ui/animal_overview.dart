@@ -15,10 +15,7 @@ class AnimalOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = Theme
-        .of(context)
-        .textTheme;
-    TextStyle textStyle = textTheme.headline6!.copyWith(fontWeight: FontWeight.w400);
+    TextTheme textTheme = Theme.of(context).textTheme;
     return DataStore.animalWidget(
       herdId: herdId,
       animalId: animalId,
