@@ -164,7 +164,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
         builder: (context) {
           return Container(
             color: colorScheme.surface,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

@@ -126,14 +126,21 @@ class _HerdeListState extends State<HerdeList> {
                               if (herd.animals[animal.fatherId] != null) {
                                 parents.add(herd.animals[animal.fatherId]!.fullName);
                               } else {
-                                parents.add('Unknown');
+                                parents.add('');
                               }
                               if (herd.animals[animal.motherId] != null) {
                                 parents.add(herd.animals[animal.motherId]!.fullName);
                               } else {
-                                parents.add('Unknown');
+                                parents.add('');
                               }
-                              String parentString = parents.join(' & ');
+                              String parentString = 'Unknown';
+                              if (parents[0].isNotEmpty && parents[1].isNotEmpty) {
+                                parentString = parents.join(' & ');
+                              } else if (parents[0].isNotEmpty) {
+                                parentString = 'Father: ${parents[0]}';
+                              } else if (parents[1].isNotEmpty) {
+                                parentString = 'Mother: ${parents[1]}';
+                              }
                               return InkWell(
                                 borderRadius: BorderRadius.circular(8),
                                 onTap: () => _previewAnimal(animal: animal, herd: herd),
@@ -346,78 +353,89 @@ class _HerdeListState extends State<HerdeList> {
             }
             return Container(
               color: colorScheme.surface,
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Filter', style: textTheme.headline5),
-                  Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      children: <Widget>[
-                        Text('Field:', style: textTheme.headline6),
-                        const Spacer(),
-                        DropdownButton(
-                          value: filterField,
-                          onChanged: (Field? value) {
-                            if (value != null) {
-                              innerSetState(() {
-                                filterField = value;
-                                filterValue = null;
-                              });
-                            }
-                          },
-                          items: sortFilter.filterFields
-                              .map((s) => DropdownMenuItem(value: s, child: Text(SortFilter.fieldName(s))))
-                              .toList(),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Filter', style: textTheme.headline5),
+                        Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: <Widget>[
+                              Text('Field:', style: textTheme.headline6),
+                              const Spacer(),
+                              DropdownButton(
+                                value: filterField,
+                                onChanged: (Field? value) {
+                                  if (value != null) {
+                                    innerSetState(() {
+                                      filterField = value;
+                                      filterValue = null;
+                                    });
+                                  }
+                                },
+                                items: sortFilter.filterFields
+                                    .map((s) => DropdownMenuItem(value: s, child: Text(SortFilter.fieldName(s))))
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          height: 50,
+                          alignment: Alignment.center,
+                          child: Row(
+                            children: <Widget>[
+                              Text('Value:', style: textTheme.headline6),
+                              const Spacer(),
+                              filterValueWidget,
+                              if (filterValue != null)
+                                IconButton(
+                                    onPressed: () => innerSetState(() => filterValue = null),
+                                    icon: const Icon(MdiIcons.close)),
+                              if (editFilterValue != null)
+                                IconButton(onPressed: editFilterValue, icon: const Icon(MdiIcons.pencil)),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Container(
-                    height: 50,
-                    alignment: Alignment.center,
-                    child: Row(
-                      children: <Widget>[
-                        Text('Value:', style: textTheme.headline6),
-                        const Spacer(),
-                        filterValueWidget,
-                        if (filterValue != null)
-                          IconButton(
-                              onPressed: () => innerSetState(() => filterValue = null),
-                              icon: const Icon(MdiIcons.close)),
-                        if (editFilterValue != null)
-                          IconButton(onPressed: editFilterValue, icon: const Icon(MdiIcons.pencil)),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                    child: ButtonBar(
+                      children: [
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            Navigator.pop(context);
+                            setState(() {
+                              sortFilter.filterField = Field.none;
+                              sortFilter.filterValue = null;
+                            });
+                          },
+                          icon: const Icon(MdiIcons.close),
+                          label: const Text('Clear Filter'),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            setState(() {
+                              sortFilter.filterField = filterField;
+                              sortFilter.filterValue = filterValue;
+                            });
+                          },
+                          icon: const Icon(MdiIcons.filterVariant),
+                          label: const Text('Filter'),
+                        ),
                       ],
                     ),
-                  ),
-                  ButtonBar(
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          Navigator.pop(context);
-                          setState(() {
-                            sortFilter.filterField = Field.none;
-                            sortFilter.filterValue = null;
-                          });
-                        },
-                        icon: const Icon(MdiIcons.close),
-                        label: const Text('Clear Filter'),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          setState(() {
-                            sortFilter.filterField = filterField;
-                            sortFilter.filterValue = filterValue;
-                          });
-                        },
-                        icon: const Icon(MdiIcons.filterVariant),
-                        label: const Text('Filter'),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -440,40 +458,43 @@ class _HerdeListState extends State<HerdeList> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 AnimalOverview(animalId: animal.id, herdId: herd.id),
-                ButtonBar(
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                        Animal? newAnimal = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => AnimalSettings(
-                                  animal: animal,
-                                  herdId: herd.id,
-                                  onDelete: () {
-                                    AnimalManager.removeAnimal(herd, animal);
-                                  })),
-                        );
-                        if (newAnimal != null) {
-                          AnimalManager.updateAnimal(herd, newAnimal);
-                        }
-                      },
-                      icon: const Icon(MdiIcons.pencil),
-                      label: const Text('Edit'),
-                    ),
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        Navigator.push(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+                  child: ButtonBar(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          Animal? newAnimal = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => AnimalDetails(animalId: animal.id, herdId: herd.id)));
-                      },
-                      icon: const Icon(MdiIcons.eye),
-                      label: const Text('View'),
-                    ),
-                  ],
+                                builder: (context) => AnimalSettings(
+                                    animal: animal,
+                                    herdId: herd.id,
+                                    onDelete: () {
+                                      AnimalManager.removeAnimal(herd, animal);
+                                    })),
+                          );
+                          if (newAnimal != null) {
+                            AnimalManager.updateAnimal(herd, newAnimal);
+                          }
+                        },
+                        icon: const Icon(MdiIcons.pencil),
+                        label: const Text('Edit'),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AnimalDetails(animalId: animal.id, herdId: herd.id)));
+                        },
+                        icon: const Icon(MdiIcons.eye),
+                        label: const Text('View'),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

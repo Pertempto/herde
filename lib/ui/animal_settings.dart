@@ -41,38 +41,49 @@ class _AnimalSettingsState extends State<AnimalSettings> {
             child: const Text('Tap to edit, press and hold to clear.', textAlign: TextAlign.center),
           ),
           ListItem(
-              title: 'Tag Number',
-              value: animal.tagNumber == -1 ? '' : animal.tagNumber.toString(),
-              onTap: () => setState(() => _editTagNumber(context))),
-          ListItem(title: 'Name', value: animal.name, onTap: () => _editName(context)),
+            title: 'Tag Number',
+            value: animal.tagNumber == -1 ? '' : animal.tagNumber.toString(),
+            onTap: () => setState(() => _editTagNumber(context)),
+            onLongPress: () => setState(() => animal = animal.copyWith(tagNumber: -1)),
+          ),
+          ListItem(
+            title: 'Name',
+            value: animal.name.isEmpty ? 'None' : animal.name,
+            onTap: () => _editName(context),
+            onLongPress: () => setState(() => animal = animal.copyWith(name: '')),
+          ),
           ListItem(
             title: 'Category',
             trailing: CategoryIcon(typeName: animal.typeName, categoryName: animal.categoryName, showLabel: true),
             onTap: () => _editCategory(context),
+            onLongPress: () => setState(() => animal = animal.copyWith(categoryName: '')),
           ),
           ListItem(
             title: 'Birth Date',
             value: animal.birthDateString,
             onTap: () => _editBirthDate(context),
+            onLongPress: () => setState(() => animal = animal.copyWith(birthDate: null)),
           ),
           DataStore.animalWidget(
               herdId: widget.herdId,
               animalId: animal.fatherId,
-              builder: (herd, animal) {
+              builder: (herd, father) {
                 return ListItem(
                   title: 'Father',
-                  value: animal?.fullName ?? '',
+                  value: father?.fullName ?? 'Unknown',
                   onTap: () => _editParent(Parent.father, herd!, context),
+                  onLongPress: () => setState(() => animal = animal.copyWith(fatherId: null)),
                 );
               }),
           DataStore.animalWidget(
               herdId: widget.herdId,
               animalId: animal.motherId,
-              builder: (herd, animal) {
+              builder: (herd, mother) {
                 return ListItem(
                   title: 'Mother',
-                  value: animal?.fullName ?? '',
+                  value: mother?.fullName ?? 'Unknown',
                   onTap: () => _editParent(Parent.mother, herd!, context),
+                  onLongPress: () => setState(() => animal = animal.copyWith(motherId: null)),
                 );
               }),
           if (!isNew)
@@ -239,14 +250,14 @@ class _AnimalSettingsState extends State<AnimalSettings> {
   _editBirthDate(BuildContext context) {
     showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: animal.birthDate ?? DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
       initialEntryMode: DatePickerEntryMode.calendarOnly,
     ).then((value) {
-      setState(() {
-        animal = animal.copyWith(birthDate: value);
-      });
+      if (value != null) {
+        setState(() => animal = animal.copyWith(birthDate: value));
+      }
     });
   }
 
