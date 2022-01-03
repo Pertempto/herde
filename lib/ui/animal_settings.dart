@@ -263,9 +263,24 @@ class _AnimalSettingsState extends State<AnimalSettings> {
 
   /* Allow the user to edit a parent of the animal. */
   _editParent(Parent parent, Herd herd, BuildContext context) async {
+    Iterable<String> treeMembers = herd.getDescendentTree(animal).allMembers.map((a) => a.id);
     String? newParentId = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => ParentSelector(parent: parent, herd: herd)),
+      MaterialPageRoute(
+          builder: (context) => ParentSelector(
+              parent: parent,
+              herd: herd,
+              filterFunction: (other) {
+                if (treeMembers.contains(other.id)) {
+                  // Descendants can not be the parent of this animal.
+                  return false;
+                }
+                if (animal.birthDate != null && other.birthDate != null) {
+                  // A potential parent must be older than this animal.
+                  return other.birthDate!.isBefore(animal.birthDate!);
+                }
+                return true;
+              })),
     );
     if (newParentId != null) {
       setState(() {

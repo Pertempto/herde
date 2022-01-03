@@ -52,7 +52,7 @@ class AnimalOverview extends StatelessWidget {
             children.add(ListItem.thin(title: 'Mother', value: mother.fullName));
           }
           if (animal.category.canReproduce) {
-            List<Animal> childList = herd!.getChildren(animal);
+            List<Animal> childList = herd!.getChildren(animal: animal, sort: false);
             String childrenString = childList.isEmpty ? 'None' : childList.map((a) => a.fullName).join(', ');
             children.add(ListItem.thin(title: 'Children', value: childrenString));
           }

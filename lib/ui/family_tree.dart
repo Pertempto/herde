@@ -1,9 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:graphview/GraphView.dart';
+import 'package:herde/data/descendent_tree.dart';
 
 import '../data/animal.dart';
+import '../data/category.dart';
 import '../data/data_store.dart';
+import '../data/herd.dart';
 import 'category_icon.dart';
 
 class FamilyTree extends StatefulWidget {
@@ -16,18 +20,25 @@ class FamilyTree extends StatefulWidget {
 }
 
 class _FamilyTreeState extends State<FamilyTree> {
-  final Graph graph = Graph();
-  SugiyamaConfiguration builder = SugiyamaConfiguration();
+  // final Graph graph = Graph();
+  // SugiyamaConfiguration builder = SugiyamaConfiguration();
+  final Graph graph = Graph()..isTree = true;
+  BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
+  Parent treeType = Parent.mother;
+  bool isVertical = false;
+  bool showBreedingPartners = false;
 
   @override
   void initState() {
     super.initState();
 
     builder
-      ..iterations = (50)
-      ..nodeSeparation = (50)
-      ..levelSeparation = (80)
-      ..orientation = SugiyamaConfiguration.ORIENTATION_LEFT_RIGHT;
+      ..siblingSeparation = 0
+      ..levelSeparation = 16
+      ..subtreeSeparation = 0
+      ..orientation = (isVertical
+          ? BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM
+          : BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT);
   }
 
   @override
@@ -38,104 +49,201 @@ class _FamilyTreeState extends State<FamilyTree> {
           if (herd == null) {
             Navigator.of(context).pop();
           }
-          if (graph.nodes.isEmpty) {
-            Node unknownNode = Node.Id(null);
-            Map<String, Node> nodes = {};
-            for (Animal animal in herd!.animals.values) {
-              nodes[animal.id] = Node.Id(animal);
-            }
-            List<Animal> animalListByAge = herd.animals.values.toList();
-            // Sort the animals by oldest to youngest.
-            animalListByAge.sort((Animal a, Animal b) {
-              if (a.birthDate == null) return 1;
-              if (b.birthDate == null) return -1;
-              return a.birthDate!.compareTo(b.birthDate!);
-            });
-            List<List<Animal>> generations = [];
-            addAnimal(Animal animal, int generation) {
-              while (generation >= generations.length) {
-                generations.add([]);
-              }
-              if (animalListByAge.remove(animal)) {
-                generations[generation].add(animal);
-                for (Animal child in herd.getChildren(animal)) {
-                  addAnimal(child, generation + 1);
+          Node unknownNode = Node.Id('ROOT');
+          Paint partnerPaint = Paint()
+            ..strokeWidth = 1
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..color = Colors.red;
+          Paint childPaint = Paint()
+            ..strokeWidth = 1
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round
+            ..color = Colors.green;
+          Paint invisiblePaint = Paint()..color = Colors.transparent;
+          Map<String, Node> nodes = {};
+          for (Animal animal in herd!.animals.values) {
+            nodes[animal.id] = Node.Id(animal.id);
+          }
+          List<Animal> animalListByAge = herd.animals.values.toList();
+          // Sort the animals by oldest to youngest.
+          animalListByAge.sort((Animal a, Animal b) {
+            if (a.birthDate == null) return 1;
+            if (b.birthDate == null) return -1;
+            return a.birthDate!.compareTo(b.birthDate!);
+          });
+          // Sort the animals by the number of children.
+          animalListByAge.sort((Animal a, Animal b) {
+            return -herd
+                .getChildren(animal: a, parent: treeType)
+                .length
+                .compareTo(herd.getChildren(animal: b, parent: treeType).length);
+          });
+
+          List<Animal> animalList = [];
+          addAnimal(Animal animal) {
+            if (animalListByAge.remove(animal)) {
+              DescendentTree tree = herd.getDescendentTree(animal, parent: treeType);
+              List<Animal> members = tree.allMembers;
+              if (members.length > 1) {
+                for (Animal descendant in members) {
+                  if (!animalList.contains(descendant)) {
+                    animalList.add(descendant);
+                    animalListByAge.remove(descendant);
+                  }
                 }
               }
             }
-            while (animalListByAge.isNotEmpty) {
-              addAnimal(animalListByAge.first, 0);
-            }
-            List<Animal> animalList = [];
-            for (List<Animal> generation in generations) {
-              animalList.addAll(generation);
-            }
-            for (Animal animal in animalList) {
+          }
+
+          while (animalListByAge.isNotEmpty) {
+            addAnimal(animalListByAge.first);
+          }
+          graph.nodes.clear();
+          graph.edges.clear();
+          for (Animal animal in animalList) {
+            if (treeType == Parent.father) {
               if (animal.fatherId != null) {
-                graph.addEdge(
-                  nodes[animal.id]!,
-                  nodes[animal.fatherId]!,
-                  paint: Paint()
-                    ..color = Colors.blue
-                    ..strokeWidth = 1
-                    ..style = PaintingStyle.stroke,
-                );
+                if (showBreedingPartners) {
+                  Node breedNode;
+                  if (animal.motherId != null) {
+                    breedNode = Node.Id(animal.fatherId! + '.' + animal.motherId!);
+                  } else {
+                    breedNode = Node.Id(animal.fatherId! + '.' + 'UNKNOWN-MOTHER');
+                  }
+                  graph.addEdge(nodes[animal.fatherId]!, breedNode, paint: partnerPaint);
+                  graph.addEdge(breedNode, nodes[animal.id]!, paint: childPaint);
+                } else {
+                  graph.addEdge(nodes[animal.fatherId]!, nodes[animal.id]!, paint: childPaint);
+                }
               } else {
-                graph.addEdge(
-                  nodes[animal.id]!,
-                  unknownNode,
-                  paint: Paint()
-                    ..color = Colors.transparent
-                    ..strokeWidth = 1
-                    ..style = PaintingStyle.stroke,
-                );
+                graph.addEdge(unknownNode, nodes[animal.id]!, paint: invisiblePaint);
               }
+            } else {
               if (animal.motherId != null) {
-                graph.addEdge(
-                  nodes[animal.id]!,
-                  nodes[animal.motherId]!,
-                  paint: Paint()
-                    ..color = Colors.pink
-                    ..strokeWidth = 1
-                    ..style = PaintingStyle.stroke,
-                );
+                if (showBreedingPartners) {
+                  Node breedNode;
+                  if (animal.fatherId != null) {
+                    breedNode = Node.Id(animal.motherId! + '.' + animal.fatherId!);
+                  } else {
+                    breedNode = Node.Id(animal.motherId! + '.' + 'UNKNOWN-FATHER');
+                  }
+                  graph.addEdge(nodes[animal.motherId]!, breedNode, paint: partnerPaint);
+                  graph.addEdge(breedNode, nodes[animal.id]!, paint: childPaint);
+                } else {
+                  graph.addEdge(nodes[animal.motherId]!, nodes[animal.id]!, paint: childPaint);
+                }
               } else {
-                graph.addEdge(
-                  nodes[animal.id]!,
-                  unknownNode,
-                  paint: Paint()
-                    ..color = Colors.transparent
-                    ..strokeWidth = 1
-                    ..style = PaintingStyle.stroke,
-                );
+                graph.addEdge(unknownNode, nodes[animal.id]!, paint: invisiblePaint);
               }
             }
           }
+
           return Scaffold(
             appBar: AppBar(title: const Text('Family Tree')),
-            body: InteractiveViewer(
-                constrained: false,
-                boundaryMargin: const EdgeInsets.all(double.infinity),
-                minScale: 0.5,
-                maxScale: 2,
-                child: GraphView(
-                  graph: graph,
-                  algorithm: SugiyamaAlgorithm(builder),
-                  builder: (Node node) {
-                    return nodeWidget(node.key!.value);
-                  },
-                )),
+            body: Stack(
+              children: [
+                InteractiveViewer(
+                  constrained: false,
+                  boundaryMargin: const EdgeInsets.all(double.infinity),
+                  minScale: 0.1,
+                  maxScale: 2,
+                  child: GraphView(
+                    graph: graph,
+                    algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
+                    builder: (Node node) {
+                      return nodeWidget(herd, node.key!.value);
+                    },
+                  ),
+                ),
+                Material(
+                  elevation: 2,
+                  child: Container(
+                    color: Theme.of(context).colorScheme.surface,
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                    alignment: Alignment.topCenter,
+                    height: 136,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            const Text('Tree Type'),
+                            const SizedBox(width: 16),
+                            CupertinoSlidingSegmentedControl<Parent>(
+                              children: const {
+                                Parent.mother: Text('Matriarchal'),
+                                Parent.father: Text('Patriarchal'),
+                              },
+                              groupValue: treeType,
+                              onValueChanged: (value) => setState(() => treeType = value!),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Text('Tree View'),
+                            const SizedBox(width: 16),
+                            CupertinoSlidingSegmentedControl<bool>(
+                              children: const {
+                                true: Text('Vertical'),
+                                false: Text('Horizontal'),
+                              },
+                              groupValue: isVertical,
+                              onValueChanged: (value) => setState(() {
+                                isVertical = value!;
+                                builder.orientation = (isVertical
+                                    ? BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM
+                                    : BuchheimWalkerConfiguration.ORIENTATION_LEFT_RIGHT);
+                              }),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Text('Show Breeding Partners'),
+                            const SizedBox(width: 16),
+                            Checkbox(
+                                value: showBreedingPartners,
+                                onChanged: (value) => setState(() => showBreedingPartners = value == true)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
         });
   }
 
-  Widget nodeWidget(Animal? a) {
+  Widget nodeWidget(Herd herd, String id) {
+    if (id.contains('.')) {
+      id = id.split('.')[1];
+    }
+    if (id == 'UNKNOWN-FATHER') {
+      return Card(
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          child: const Text('Unknown\nFather', textAlign: TextAlign.center),
+        ),
+      );
+    } else if (id == 'UNKNOWN-MOTHER') {
+      return Card(
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          child: const Text('Unknown\nMother', textAlign: TextAlign.center),
+        ),
+      );
+    }
+    Animal? a = herd.animals[id];
     if (a == null) {
       return Container();
     }
     return Card(
       child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 8),
+        padding: const EdgeInsets.fromLTRB(8, 4, 8, 6),
         child: Column(
           children: [
             Row(
@@ -152,68 +260,3 @@ class _FamilyTreeState extends State<FamilyTree> {
     );
   }
 }
-
-// class _FamilyTreeState extends State<FamilyTree> {
-//   final TransformationController _transformationController = TransformationController();
-//   final Graph graph = Graph()..isTree = true;
-//   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     builder
-//       ..siblingSeparation = (10)
-//       ..levelSeparation = (15)
-//       ..subtreeSeparation = (15)
-//       ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return DataStore.herdWidget(
-//         herdId: widget.herdId,
-//         builder: (herd) {
-//           if (herd == null) {
-//             Navigator.of(context).pop();
-//           }
-//           if (graph.nodes.isEmpty) {
-//             Map<String, Node> nodes = {};
-//             for (Animal animal in herd!.animals.values) {
-//               nodes[animal.id] = Node.Id(animal.fullName);
-//             }
-//             for (Animal animal in herd.animals.values) {
-//               // graph.addNode(nodes[animal.id]!);
-//               if (animal.fatherId != null) {
-//                 graph.addEdge(nodes[animal.fatherId]!, nodes[animal.id]!);
-//               }
-//               if (animal.motherId != null) {
-//                 graph.addEdge(nodes[animal.motherId]!, nodes[animal.id]!);
-//               }
-//             }
-//           }
-//           return Scaffold(
-//             appBar: AppBar(title: const Text('Family Tree')),
-//             body: Center(
-//               child: InteractiveViewer(
-//                 constrained: false,
-//                 boundaryMargin: const EdgeInsets.all(double.infinity),
-//                 transformationController: _transformationController,
-//                 minScale: 0.01,
-//                 maxScale: 100,
-//                 child: GraphView(
-//                   graph: graph,
-//                   algorithm: builder,
-//                   builder: (Node node) {
-//                     return Text(node.key?.value.toString() ?? 'BLANK');
-//                   },
-//                   paint: Paint()
-//                     ..color = Colors.black
-//                     ..strokeWidth = 1
-//                     ..style = PaintingStyle.stroke,
-//                 ),
-//               ),
-//             ),
-//           );
-//         });
-//   }
-// }

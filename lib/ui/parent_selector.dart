@@ -10,8 +10,14 @@ import 'list_item.dart';
 class ParentSelector extends StatelessWidget {
   final Parent parent;
   final Herd herd;
+  final bool Function(Animal)? filterFunction;
 
-  const ParentSelector({required this.parent, required this.herd, Key? key}) : super(key: key);
+  const ParentSelector({
+    required this.parent,
+    required this.herd,
+    this.filterFunction,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +30,12 @@ class ParentSelector extends StatelessWidget {
       name = 'Mother';
       gender = Gender.female;
     }
-    List<Animal> animals = herd.animals.values
-        .where((animal) => animal.category.canReproduce && animal.category.gender == gender)
-        .toList();
+    List<Animal> animals = herd.animals.values.where((animal) {
+      if (filterFunction != null && !filterFunction!(animal)) {
+        return false;
+      }
+      return animal.category.canReproduce && animal.category.gender == gender;
+    }).toList();
     return Scaffold(
       appBar: AppBar(
         title: Text('Select $name'),
