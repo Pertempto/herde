@@ -46,7 +46,7 @@ class DataStore {
       query: query,
       builder: (context, snapshot, _) {
         if (snapshot.isFetching) {
-          return const Center(child: CircularProgressIndicator());
+          return const SizedBox(width: 0, height: 0);
         }
         if (snapshot.hasError) {
           return Center(child: Text('Something went wrong! ${snapshot.error}'));
