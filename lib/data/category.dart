@@ -131,7 +131,57 @@ Map<String, Map<String, Category>> _categories = {
       iconData: MdiIcons.circleSmall,
       canReproduce: false,
     ),
-  }
+  },
+  'Duck': {
+    'Drake': Category(
+      name: 'Drake',
+      sortIndex: 0,
+      color: Colors.blue,
+      iconData: MdiIcons.multiplication,
+      gender: Gender.male,
+      canReproduce: true,
+    ),
+    'Duck': Category(
+      name: 'Duck',
+      sortIndex: 1,
+      color: Colors.pink,
+      iconData: MdiIcons.plus,
+      gender: Gender.female,
+      canReproduce: true,
+    ),
+    'Duckling': Category(
+      name: 'Duckling',
+      sortIndex: 2,
+      color: Colors.purple,
+      iconData: MdiIcons.circleSmall,
+      canReproduce: false,
+    ),
+  },
+  'Dog': {
+    'Male': Category(
+      name: 'Male',
+      sortIndex: 0,
+      color: Colors.blue,
+      iconData: MdiIcons.multiplication,
+      gender: Gender.male,
+      canReproduce: true,
+    ),
+    'Female': Category(
+      name: 'Female',
+      sortIndex: 1,
+      color: Colors.pink,
+      iconData: MdiIcons.plus,
+      gender: Gender.female,
+      canReproduce: true,
+    ),
+    'Pup': Category(
+      name: 'Pup',
+      sortIndex: 2,
+      color: Colors.purple,
+      iconData: MdiIcons.circleSmall,
+      canReproduce: false,
+    ),
+  },
 };
 
 Category getCategory(String typeName, String categoryName) {

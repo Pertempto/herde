@@ -41,6 +41,8 @@ App Icon by Addison Emig
 Goat by Laymik from NounProject.com
 Cow by Laymik from NounProject.com
 Egyptian Cat by Laymik from NounProject.com
+Duck by Laymik from NounProject.com
+Dog by Ian Rahmadi Kurniawan from NounProject.com
 ''';
     const String verse = '''
 He blesseth them also, so that they are multiplied greatly; and suffereth not their cattle to decrease.

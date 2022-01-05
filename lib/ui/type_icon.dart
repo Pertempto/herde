@@ -5,7 +5,13 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../herde_icons.dart';
 
 class TypeIcon extends StatelessWidget {
-  static const Map<String, IconData> icons = {'Cow': HerdeIcons.cow, 'Goat': HerdeIcons.goat, 'Cat': HerdeIcons.cat};
+  static const Map<String, IconData> icons = {
+    'Cow': HerdeIcons.cow,
+    'Goat': HerdeIcons.goat,
+    'Cat': HerdeIcons.cat,
+    'Duck': HerdeIcons.duck,
+    'Dog': HerdeIcons.dog,
+  };
   final String type;
   final bool showLabel;
   final bool onPrimary;

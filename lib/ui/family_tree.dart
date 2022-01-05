@@ -26,7 +26,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
   Parent treeType = Parent.mother;
   bool isVertical = false;
-  bool showBreedingPartners = false;
+  bool showMates = false;
 
   @override
   void initState() {
@@ -104,7 +104,7 @@ class _FamilyTreeState extends State<FamilyTree> {
           for (Animal animal in animalList) {
             if (treeType == Parent.father) {
               if (animal.fatherId != null) {
-                if (showBreedingPartners) {
+                if (showMates) {
                   Node breedNode;
                   if (animal.motherId != null) {
                     breedNode = Node.Id(animal.fatherId! + '.' + animal.motherId!);
@@ -121,7 +121,7 @@ class _FamilyTreeState extends State<FamilyTree> {
               }
             } else {
               if (animal.motherId != null) {
-                if (showBreedingPartners) {
+                if (showMates) {
                   Node breedNode;
                   if (animal.fatherId != null) {
                     breedNode = Node.Id(animal.motherId! + '.' + animal.fatherId!);
@@ -141,27 +141,16 @@ class _FamilyTreeState extends State<FamilyTree> {
 
           return Scaffold(
             appBar: AppBar(title: const Text('Family Tree')),
-            body: Stack(
+            body: Column(
+              mainAxisSize: MainAxisSize.min,
+              verticalDirection: VerticalDirection.up,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                InteractiveViewer(
-                  constrained: false,
-                  boundaryMargin: const EdgeInsets.all(double.infinity),
-                  minScale: 0.1,
-                  maxScale: 2,
-                  child: GraphView(
-                    graph: graph,
-                    algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
-                    builder: (Node node) {
-                      return nodeWidget(herd, node.key!.value);
-                    },
-                  ),
-                ),
                 Material(
                   elevation: 2,
                   child: Container(
                     color: Theme.of(context).colorScheme.surface,
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                    alignment: Alignment.topCenter,
                     height: 136,
                     child: Column(
                       children: [
@@ -201,18 +190,33 @@ class _FamilyTreeState extends State<FamilyTree> {
                         ),
                         Row(
                           children: [
-                            const Text('Show Breeding Partners'),
+                            const Text('Show Mates'),
                             const SizedBox(width: 16),
-                            Checkbox(
-                                value: showBreedingPartners,
-                                onChanged: (value) => setState(() => showBreedingPartners = value == true)),
+                            Checkbox(value: showMates, onChanged: (value) => setState(() => showMates = value == true)),
                           ],
                         ),
                       ],
                     ),
                   ),
                 ),
-              ],
+                if (graph.nodes.isEmpty) const Padding(padding: EdgeInsets.all(16), child: Text('Tree is empty.')),
+                if (graph.nodes.isNotEmpty)
+                  Expanded(
+                    child: InteractiveViewer(
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(double.infinity),
+                      minScale: 0.1,
+                      maxScale: 2,
+                      child: GraphView(
+                        graph: graph,
+                        algorithm: BuchheimWalkerAlgorithm(builder, TreeEdgeRenderer(builder)),
+                        builder: (Node node) {
+                          return nodeWidget(herd, node.key!.value);
+                        },
+                      ),
+                    ),
+                  ),
+              ].reversed.toList(),
             ),
           );
         });

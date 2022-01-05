@@ -5,7 +5,7 @@ import 'type_icon.dart';
 import 'list_item.dart';
 
 class TypeSelector extends StatelessWidget {
-  static const List<String> types = ['Goat', 'Cow', 'Cat'];
+  static const List<String> types = ['Goat', 'Cow', 'Dog', 'Cat', 'Duck'];
 
   const TypeSelector({Key? key}) : super(key: key);
 
