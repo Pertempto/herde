@@ -7,12 +7,17 @@ import '../data/data_store.dart';
 import '../data/herd.dart';
 import '../ui/type_selector.dart';
 import 'list_item.dart';
+import 'loading.dart';
 import 'type_icon.dart';
 
 class HerdSettings extends StatefulWidget {
   final String herdId;
 
   const HerdSettings({required this.herdId, Key? key}) : super(key: key);
+
+  const HerdSettings.create({Key? key})
+      : herdId = '',
+        super(key: key);
 
   @override
   State<HerdSettings> createState() => _HerdSettingsState();
@@ -48,7 +53,10 @@ class _HerdSettingsState extends State<HerdSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return DataStore.userWidget(builder: (user) {
+    return DataStore.userWidget(builder: (user, isLoading) {
+      if (user == null || isLoading) {
+        return const Loading();
+      }
       Widget body = ListView(
         children: [
           ListItem(title: 'Name', value: name, onTap: () => _editName(context)),

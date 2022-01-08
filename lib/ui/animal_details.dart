@@ -27,7 +27,7 @@ class _AnimalDetailsState extends State<AnimalDetails> {
     return DataStore.animalWidget(
         herdId: widget.herdId,
         animalId: widget.animalId,
-        builder: (Herd? herd, Animal? animal) {
+        builder: (Herd? herd, Animal? animal, bool isLoading) {
           List<Widget> children = [];
 
           if (animal != null) {
@@ -92,8 +92,8 @@ class _AnimalDetailsState extends State<AnimalDetails> {
                 )
               ],
             ),
-            body: SingleChildScrollView(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)),
+            body:
+                SingleChildScrollView(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)),
           );
         });
   }

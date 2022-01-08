@@ -19,7 +19,7 @@ class AnimalOverview extends StatelessWidget {
     return DataStore.animalWidget(
       herdId: herdId,
       animalId: animalId,
-      builder: (Herd? herd, Animal? animal) {
+      builder: (Herd? herd, Animal? animal, bool isLoading) {
         List<Widget> children = [];
 
         if (animal != null) {

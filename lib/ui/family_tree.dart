@@ -2,11 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:graphview/GraphView.dart';
-import 'package:herde/data/descendent_tree.dart';
 
 import '../data/animal.dart';
 import '../data/category.dart';
 import '../data/data_store.dart';
+import '../data/descendent_tree.dart';
 import '../data/herd.dart';
 import 'category_icon.dart';
 
@@ -45,7 +45,7 @@ class _FamilyTreeState extends State<FamilyTree> {
   Widget build(BuildContext context) {
     return DataStore.herdWidget(
         herdId: widget.herdId,
-        builder: (herd) {
+        builder: (herd, bool isLoading) {
           if (herd == null) {
             Navigator.of(context).pop();
           }

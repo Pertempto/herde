@@ -18,7 +18,7 @@ import 'animal_settings.dart';
 import 'category_icon.dart';
 import 'category_selector.dart';
 import 'family_tree.dart';
-import 'herd_settings.dart';
+import 'herd_management.dart';
 import 'list_item.dart';
 import 'parent_selector.dart';
 import 'settings.dart';
@@ -54,9 +54,8 @@ class _HerdeListState extends State<HerdeList> {
     TextTheme textTheme = Theme.of(context).textTheme;
     return DataStore.herdWidget(
         herdId: widget.user.currentHerd,
-        builder: (herd) {
+        builder: (herd, isLoading) {
           if (herd == null) {
-            DataStore.setCurrentHerd('');
             return Container();
           }
           List<Animal> animals = sortFilter.process(herd);
@@ -66,7 +65,12 @@ class _HerdeListState extends State<HerdeList> {
               Scaffold(
                 appBar: AppBar(
                   title: Text(herd.name),
-                  leading: TypeIcon(type: herd.type, onPrimary: true),
+                  leading: TypeIcon(
+                    type: herd.type,
+                    onPrimary: true,
+                    onTap: () =>
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const HerdManagement())),
+                  ),
                   actions: [
                     IconButton(
                       icon: const Icon(MdiIcons.cog),
@@ -87,14 +91,6 @@ class _HerdeListState extends State<HerdeList> {
                         child: Wrap(
                           alignment: WrapAlignment.end,
                           children: [
-                            TextButton.icon(
-                              icon: const Icon(MdiIcons.pencil),
-                              onPressed: () {
-                                Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => HerdSettings(herdId: herd.id)));
-                              },
-                              label: const Text('Edit'),
-                            ),
                             TextButton.icon(
                               icon: const Icon(MdiIcons.familyTree),
                               onPressed: () {
@@ -311,7 +307,7 @@ class _HerdeListState extends State<HerdeList> {
               filterValueWidget = DataStore.animalWidget(
                   herdId: herd.id,
                   animalId: sortFilter.filterValue,
-                  builder: (herd, animal) {
+                  builder: (herd, animal, isLoading) {
                     return Text(animal?.fullName ?? '',
                         style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
                   });
@@ -320,7 +316,7 @@ class _HerdeListState extends State<HerdeList> {
               filterValueWidget = DataStore.animalWidget(
                   herdId: herd.id,
                   animalId: sortFilter.filterValue,
-                  builder: (herd, animal) {
+                  builder: (herd, animal, isLoading) {
                     return Text(animal?.fullName ?? '',
                         style: textTheme.headline6!.copyWith(fontWeight: FontWeight.w400));
                   });

@@ -6,7 +6,9 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import '../data/data_store.dart';
 import '../data/herde_user.dart';
 import 'about.dart';
+import 'herd_management.dart';
 import 'list_item.dart';
+import 'loading.dart';
 
 class Settings extends StatefulWidget {
   const Settings({Key? key}) : super(key: key);
@@ -18,10 +20,14 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
-    Widget body = DataStore.userWidget(builder: (HerdeUser user) {
+    Widget body = DataStore.userWidget(builder: (HerdeUser? user, bool isLoading) {
+      if (user == null || isLoading) {
+        return const Loading();
+      }
       return ListView(
         children: [
           ListItem(title: 'Name', value: user.name, onTap: () => _editUserName(user.name)),
+          ListItem(title: 'Herd Management', trailing: const Icon(MdiIcons.dotsGrid), onTap: _goToHerdManagement),
         ],
       );
     });
@@ -85,4 +91,7 @@ class _SettingsState extends State<Settings> {
       },
     );
   }
+
+  /* Go to the Herd Management page. */
+  _goToHerdManagement() => Navigator.push(context, MaterialPageRoute(builder: (context) => const HerdManagement()));
 }

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:herde/ui/category_icon.dart';
 
 import '../data/animal.dart';
 import '../data/category.dart';
 import '../data/herd.dart';
+import '../ui/category_icon.dart';
 import 'list_item.dart';
 
 class ParentSelector extends StatelessWidget {

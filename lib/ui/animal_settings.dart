@@ -7,9 +7,11 @@ import '../data/animal.dart';
 import '../data/category.dart';
 import '../data/data_store.dart';
 import '../data/herd.dart';
+import '../data/herde_user.dart';
 import 'category_icon.dart';
 import 'category_selector.dart';
 import 'list_item.dart';
+import 'loading.dart';
 import 'parent_selector.dart';
 
 class AnimalSettings extends StatefulWidget {
@@ -32,7 +34,10 @@ class _AnimalSettingsState extends State<AnimalSettings> {
 
   @override
   Widget build(BuildContext context) {
-    return DataStore.userWidget(builder: (user) {
+    return DataStore.userWidget(builder: (HerdeUser? user, bool isLoading) {
+      if (user == null || isLoading) {
+        return const Loading();
+      }
       Widget body = ListView(
         children: [
           Container(
@@ -67,7 +72,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
           DataStore.animalWidget(
               herdId: widget.herdId,
               animalId: animal.fatherId,
-              builder: (herd, father) {
+              builder: (herd, father, isLoading) {
                 return ListItem(
                   title: 'Father',
                   value: father?.fullName ?? 'Unknown',
@@ -78,7 +83,7 @@ class _AnimalSettingsState extends State<AnimalSettings> {
           DataStore.animalWidget(
               herdId: widget.herdId,
               animalId: animal.motherId,
-              builder: (herd, mother) {
+              builder: (herd, mother, isLoading) {
                 return ListItem(
                   title: 'Mother',
                   value: mother?.fullName ?? 'Unknown',

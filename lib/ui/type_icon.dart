@@ -15,8 +15,15 @@ class TypeIcon extends StatelessWidget {
   final String type;
   final bool showLabel;
   final bool onPrimary;
+  final VoidCallback? onTap;
 
-  const TypeIcon({required this.type, this.showLabel = false, this.onPrimary = false, Key? key}) : super(key: key);
+  const TypeIcon({
+    Key? key,
+    required this.type,
+    this.showLabel = false,
+    this.onPrimary = false,
+    this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,20 +31,26 @@ class TypeIcon extends StatelessWidget {
     TextTheme textTheme = Theme.of(context).textTheme;
     TextStyle textStyle = textTheme.headline6!.copyWith(fontWeight: FontWeight.w400);
     if (showLabel) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(type, style: textStyle),
-          const SizedBox(width: 8),
-          Icon(icons[type] ?? MdiIcons.helpCircleOutline,
-              color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
-        ],
+      return GestureDetector(
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(type, style: textStyle),
+            const SizedBox(width: 8),
+            Icon(icons[type] ?? MdiIcons.helpCircleOutline,
+                color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
+          ],
+        ),
       );
     } else {
-      return Tooltip(
-        message: type,
-        child: Icon(icons[type] ?? MdiIcons.helpCircleOutline,
-            color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
+      return GestureDetector(
+        onTap: onTap,
+        child: Tooltip(
+          message: type,
+          child: Icon(icons[type] ?? MdiIcons.helpCircleOutline,
+              color: onPrimary ? colorScheme.onPrimary : colorScheme.onBackground),
+        ),
       );
     }
   }

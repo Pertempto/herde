@@ -13,12 +13,14 @@ part 'herd.g.dart';
 class Herd with _$Herd {
   const Herd._();
 
-  factory Herd(
-      {required String id,
-      required String ownerId,
-      required String name,
-      required String type,
-      @Default({}) Map<String, Animal> animals}) = _Herde;
+  factory Herd({
+    required String id,
+    required String ownerId,
+    required String name,
+    required String type,
+    @Default({}) Map<String, Animal> animals,
+    @Default([]) List<String> userIds,
+  }) = _Herde;
 
   factory Herd.fromJson(Map<String, dynamic> json) => _$HerdFromJson(json);
 
