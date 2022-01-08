@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import '../data/herde_user.dart';
+import 'herd_management.dart';
 import 'herd_settings.dart';
 import 'settings.dart';
 
@@ -32,6 +33,12 @@ class EmptyHome extends StatelessWidget {
               onPressed: () =>
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const HerdSettings.create())),
               label: const Text('Create a Herd'),
+            ),
+            OutlinedButton.icon(
+              icon: const Icon(MdiIcons.dotsGrid),
+              onPressed: () =>
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HerdManagement())),
+              label: const Text('Herd Management'),
             ),
           ],
         ),

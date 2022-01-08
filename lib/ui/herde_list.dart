@@ -20,6 +20,7 @@ import 'category_selector.dart';
 import 'family_tree.dart';
 import 'herd_management.dart';
 import 'list_item.dart';
+import 'loading.dart';
 import 'parent_selector.dart';
 import 'settings.dart';
 import 'type_icon.dart';
@@ -56,7 +57,10 @@ class _HerdeListState extends State<HerdeList> {
         herdId: widget.user.currentHerd,
         builder: (herd, isLoading) {
           if (herd == null) {
-            return Container();
+            if (!isLoading) {
+              DataStore.setCurrentHerd('');
+            }
+            return const Loading();
           }
           List<Animal> animals = sortFilter.process(herd);
 
