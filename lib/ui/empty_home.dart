@@ -36,8 +36,7 @@ class EmptyHome extends StatelessWidget {
             ),
             OutlinedButton.icon(
               icon: const Icon(MdiIcons.dotsGrid),
-              onPressed: () =>
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => HerdManagement())),
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const HerdManagement())),
               label: const Text('Herd Management'),
             ),
           ],

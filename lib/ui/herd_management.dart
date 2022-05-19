@@ -32,8 +32,7 @@ class _HerdManagementState extends State<HerdManagement> {
             children: [
               _currentHerdSection(user.currentHerd),
               DataStore.ownedHerdsWidget(builder: (herds) => _ownedHerdsSection(user, herds!)),
-              // TODO: implement shared herds UI.
-              // DataStore.sharedHerdsWidget(builder: (herds) => _sharedHerdsSection(user, herds!)),
+              DataStore.sharedHerdsWidget(builder: (herds) => _sharedHerdsSection(user, herds!)),
             ],
           ),
         ),

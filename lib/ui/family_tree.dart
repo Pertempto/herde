@@ -9,6 +9,7 @@ import '../data/data_store.dart';
 import '../data/descendent_tree.dart';
 import '../data/herd.dart';
 import 'category_icon.dart';
+import 'loading.dart';
 
 class FamilyTree extends StatefulWidget {
   final String herdId;
@@ -46,8 +47,8 @@ class _FamilyTreeState extends State<FamilyTree> {
     return DataStore.herdWidget(
         herdId: widget.herdId,
         builder: (herd, bool isLoading) {
-          if (herd == null) {
-            Navigator.of(context).pop();
+          if (herd == null || isLoading) {
+            return const Loading();
           }
           Node unknownNode = Node.Id('ROOT');
           Paint partnerPaint = Paint()
@@ -62,7 +63,7 @@ class _FamilyTreeState extends State<FamilyTree> {
             ..color = Colors.green;
           Paint invisiblePaint = Paint()..color = Colors.transparent;
           Map<String, Node> nodes = {};
-          for (Animal animal in herd!.animals.values) {
+          for (Animal animal in herd.animals.values) {
             nodes[animal.id] = Node.Id(animal.id);
           }
           List<Animal> animalListByAge = herd.animals.values.toList();
